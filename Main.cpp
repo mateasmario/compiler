@@ -206,7 +206,7 @@ int getNextToken(FILE* file)
 				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 				currentId[currentIdLength++] = ch;
 			}
-			else {
+			else if (!isspace(ch)) {
 				err("Invalid character");
 			}
 		}
