@@ -19,7 +19,7 @@ typedef struct _Token {
 	struct _Token* next; // link to the next token
 } Token;
 
-int line;
+int line = 1;
 Token* lastToken;
 Token* tokens;
 
@@ -27,7 +27,7 @@ void err(const char* fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
-	fprintf(stderr, "error: ");
+	fprintf(stderr, "Error on line %d: ", line);
 	vfprintf(stderr, fmt, va);
 	fputc('\n', stderr);
 	va_end(va);
@@ -181,7 +181,10 @@ int getNextToken(FILE* file)
 			{
 				ch = fgetc(file);
 
-				if (isalpha(ch) || ch == '_') {
+				if (ch == '\n') {
+					line++;
+				}
+				else if (isalpha(ch) || ch == '_') {
 					state = 1;
 					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 					currentId[currentIdLength++] = ch;
@@ -240,11 +243,15 @@ int getNextToken(FILE* file)
 					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 					currentId[currentIdLength++] = ch;
 				}
+				else if (ch == '\n') {
+					line++;
+					state = 6;
+				}
 				else if (isspace(ch) || ch == EOF) {
 					state = 6;
 				}
 				else {
-					err("Invalid character on line ", line);
+					err("Invalid character");
 				}
 			}
 				break;
@@ -260,11 +267,15 @@ int getNextToken(FILE* file)
 					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 					currentId[currentIdLength++] = ch;
 				}
+				else if (ch == '\n') {
+					line++;
+					state = 6;
+				}
 				else if (isspace(ch) || ch == EOF) {
 					state = 6;
 				}
 				else {
-					err("Invalid character on line ", line);
+					err("Invalid character");
 				}
 			}
 				break;
@@ -272,18 +283,33 @@ int getNextToken(FILE* file)
 			{
 				ch = fgetc(file);
 				if (isalnum(ch)) {
+					state = 6;
 					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 					currentId[currentIdLength++] = ch;
 				}
-				else if (isspace(ch) || ch == EOF) {
-					state = 6;
-				}
 				else {
-					err("Invalid character on line ", line);
+					err("Invalid character");
 				}
 			}
 				break;
 			case 6:
+				ch = fgetc(file);
+				if (isalnum(ch)) {
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+				else if (ch == '\n') {
+					line++;
+					state = 7;
+				}
+				else if (isspace(ch) || ch == EOF) {
+					state = 7;
+				}
+				else {
+					err("Invalid character");
+				}
+				break;
+			case 7:
 			{
 				currentId[currentIdLength++] = 0; // add string terminator
 
@@ -317,7 +343,7 @@ int main(int argc, char** argv) {
 		getNextTokenResult = getNextToken(file);
 	} while (getNextTokenResult != END);
 
-	showAtoms();
+	showAtoms();	
 
 	return 0;
 }
