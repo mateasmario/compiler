@@ -6,7 +6,7 @@
 
 #define SAFEALLOC(var,Type) if((var=(Type*)malloc(sizeof(Type)))==NULL)err("not enough memory");
 
-enum { ID, CT_INT, END, BREAK, CHAR, DOUBLE, ELSE, FOR, IF, INT, RETURN, STRUCT, VOID, WHILE }; // token codes
+enum { ID, CT_INT, CT_REAL, END, BREAK, CHAR, DOUBLE, ELSE, FOR, IF, INT, RETURN, STRUCT, VOID, WHILE }; // token codes
 
 typedef struct _Token {
 	int code; // code (name)
@@ -70,6 +70,9 @@ void showAtoms() {
 		}
 		else if (curr->code == CT_INT) {
 			printf("[CT_INT] %d\n", curr->i);
+		}
+		else if (curr->code == CT_REAL) {
+			printf("[CT_REAL] %f\n", curr->r);
 		}
 		else if (curr->code == END) {
 			printf("[END] No value\n");
@@ -177,147 +180,265 @@ int getNextToken(FILE* file)
 
 	while (1) {
 		switch (state) {
-			case 0:
-			{
-				ch = fgetc(file);
+		case 0:
+		{
+			ch = fgetc(file);
 
-				if (ch == '\n') {
-					line++;
-				}
-				else if (isalpha(ch) || ch == '_') {
-					state = 1;
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else if (ch == EOF) {
-					addToken(END);
-					return END;
-				}
-				else if (ch >= '1' && ch <= '9') {
-					state = 3;
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else if (ch == '0') {
-					state = 4;
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
+			if (ch == '\n') {
+				line++;
 			}
-				break;
-			case 1:
-			{
-				ch = fgetc(file);
+			else if (isalpha(ch) || ch == '_') {
+				state = 1;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == EOF) {
+				addToken(END);
+				return END;
+			}
+			else if (ch >= '1' && ch <= '9') {
+				state = 3;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '0') {
+				state = 4;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 1:
+		{
+			ch = fgetc(file);
 
-				if (isalnum(ch) || ch == '_') {
-					// state = 1 not needed. It stays in the same state
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else {
-					state = 2;
-					ungetc(ch, file);
-				}
+			if (isalnum(ch) || ch == '_') {
+				// state = 1 not needed. It stays in the same state
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
 			}
-				break;
-			case 2:
-			{
-				currentId[currentIdLength++] = 0; // add string terminator
+			else {
+				state = 2;
+				ungetc(ch, file);
+			}
+		}
+		break;
+		case 2:
+		{
+			currentId[currentIdLength++] = 0; // add string terminator
 
-				int processKeywordResult = processKeyword(currentId);
+			int processKeywordResult = processKeyword(currentId);
 
-				if (processKeywordResult != -1) {
-					return processKeywordResult;
-				}
-				else {
-					tk = addToken(ID);
-					tk->text = currentId;
-					return tk->code;
-				}
+			if (processKeywordResult != -1) {
+				return processKeywordResult;
 			}
-				break; 
-			case 3:
-			{
-				ch = fgetc(file);
-				if (isdigit(ch)) {
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else if (ch == '\n') {
-					line++;
-					state = 6;
-				}
-				else if (isspace(ch) || ch == EOF) {
-					state = 6;
-				}
-				else {
-					err("Invalid character");
-				}
-			}
-				break;
-			case 4:
-			{
-				ch = fgetc(file);
-				if (ch == 'x' || ch == 'X') {
-					state = 5;
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else if (ch >= '0' && ch <= '7') {
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else if (ch == '\n') {
-					line++;
-					state = 6;
-				}
-				else if (isspace(ch) || ch == EOF) {
-					state = 6;
-				}
-				else {
-					err("Invalid character");
-				}
-			}
-				break;
-			case 5:
-			{
-				ch = fgetc(file);
-				if (isalnum(ch)) {
-					state = 6;
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else {
-					err("Invalid character");
-				}
-			}
-				break;
-			case 6:
-				ch = fgetc(file);
-				if (isalnum(ch)) {
-					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
-					currentId[currentIdLength++] = ch;
-				}
-				else if (ch == '\n') {
-					line++;
-					state = 7;
-				}
-				else if (isspace(ch) || ch == EOF) {
-					state = 7;
-				}
-				else {
-					err("Invalid character");
-				}
-				break;
-			case 7:
-			{
-				currentId[currentIdLength++] = 0; // add string terminator
-
-				tk = addToken(CT_INT);
-				tk->i = strtol(currentId, NULL, 0);
+			else {
+				tk = addToken(ID);
+				tk->text = currentId;
 				return tk->code;
 			}
-				break;
+		}
+		break;
+		case 3:
+		{
+			ch = fgetc(file);
+			if (isdigit(ch)) {
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '.') {
+				state = 8;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == 'e' || ch == 'E') {
+				state = 10;
+			}
+			else if (ch == '\n') {
+				line++;
+				state = 6;
+			}
+			else if (isspace(ch) || ch == EOF) {
+				state = 6;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 4:
+		{
+			ch = fgetc(file);
+			if (ch == 'x' || ch == 'X') {
+				state = 5;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch >= '0' && ch <= '7') {
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '.') {
+				state = 8;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == 'e' || ch == 'E') {
+				state = 8;
+			}
+			else if (ch == '\n') {
+				line++;
+				state = 6;
+			}
+			else if (isspace(ch) || ch == EOF) {
+				state = 6;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 5:
+		{
+			ch = fgetc(file);
+			if (isalnum(ch)) {
+				state = 6;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 6:
+		{
+			ch = fgetc(file);
+			if (isalnum(ch)) {
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '\n') {
+				line++;
+				state = 7;
+			}
+			else if (isspace(ch) || ch == EOF) {
+				state = 7;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 7:
+		{
+			currentId[currentIdLength++] = 0; // add string terminator
+
+			tk = addToken(CT_INT);
+			tk->i = strtol(currentId, NULL, 0);
+			return tk->code;
+		}
+		break;
+		case 8:
+		{
+			ch = fgetc(file);
+			if (isdigit(ch)) {
+				state = 9;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 9:
+		{
+			ch = fgetc(file);
+			if (isdigit(ch)) {
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == 'e' || ch == 'E') {
+				state = 10;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '\n') {
+				line++;
+				state = 13;
+			}
+			else if (isspace(ch) || ch == EOF) {
+				state = 13;
+			}
+		}
+		break;
+		case 10:
+		{
+			ch = fgetc(file);
+			if (ch == '+' || ch == '-') {
+				state = 11;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (isdigit(ch)) {
+				state = 12;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '\n') {
+				line++;
+				state = 11;
+			}
+			else if (isspace(ch) || ch == EOF) {
+				state = 11;
+			}
+		}
+		break;
+		case 11:
+		{
+			ch = fgetc(file);
+			if (isdigit(ch)) {
+				state = 12;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 12:
+		{
+			ch = fgetc(file);
+			if (isdigit(ch)) {
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '\n') {
+				line++;
+				state = 13;
+			}
+			else if (isspace(ch) || ch == EOF) {
+				state = 13;
+			}
+			else {
+				err("Invalid character.");
+			}
+		}
+		break;
+		case 13:
+		{
+			currentId[currentIdLength++] = 0; // add string terminator
+
+			tk = addToken(CT_REAL);
+			tk->r = strtod(currentId, NULL);
+			return tk->code;
+		}
+		break;
 		}
 	}
 }
