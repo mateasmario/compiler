@@ -256,13 +256,15 @@ int getNextToken(FILE* file)
 			}
 			else if (ch == 'e' || ch == 'E') {
 				state = 10;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == '\n') {
 				line++;
-				state = 6;
+				state = 7;
 			}
 			else if (isspace(ch) || ch == EOF) {
-				state = 6;
+				state = 7;
 			}
 			else {
 				err("Invalid character");
@@ -291,10 +293,10 @@ int getNextToken(FILE* file)
 			}
 			else if (ch == '\n') {
 				line++;
-				state = 6;
+				state = 7;
 			}
 			else if (isspace(ch) || ch == EOF) {
-				state = 6;
+				state = 7;
 			}
 			else {
 				err("Invalid character");
