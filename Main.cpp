@@ -6,7 +6,7 @@
 
 #define SAFEALLOC(var,Type) if((var=(Type*)malloc(sizeof(Type)))==NULL)err("not enough memory");
 
-enum { ID, END, BREAK, CHAR, DOUBLE, ELSE, FOR, IF, INT, RETURN, STRUCT, VOID, WHILE }; // token codes
+enum { ID, CT_INT, END, BREAK, CHAR, DOUBLE, ELSE, FOR, IF, INT, RETURN, STRUCT, VOID, WHILE }; // token codes
 
 typedef struct _Token {
 	int code; // code (name)
@@ -60,6 +60,55 @@ Token* addToken(int code)
 	}
 	lastToken = tk;
 	return tk;
+}
+
+void showAtoms() {
+	Token* curr = tokens;
+	while (curr != NULL) {
+		if (curr->code == ID) {
+			printf("[ID] %s\n", curr->text);
+		}
+		else if (curr->code == CT_INT) {
+			printf("[CT_INT] %d\n", curr->i);
+		}
+		else if (curr->code == END) {
+			printf("[END] No value\n");
+		}
+		else if (curr->code == BREAK) {
+			printf("[BREAK] No value\n");
+		}
+		else if (curr->code == CHAR) {
+			printf("[CHAR] No value\n");
+		}
+		else if (curr->code == DOUBLE) {
+			printf("[DOUBLE] No value\n");
+		}
+		else if (curr->code == ELSE) {
+			printf("[ELSE] No value\n");
+		}
+		else if (curr->code == FOR) {
+			printf("[FOR] No value\n");
+		}
+		else if (curr->code == IF) {
+			printf("[IF] No value\n");
+		}
+		else if (curr->code == INT) {
+			printf("[INT] No value\n");
+		}
+		else if (curr->code == RETURN) {
+			printf("[RETURN] No value\n");
+		}
+		else if (curr->code == STRUCT) {
+			printf("[STRUCT] No value\n");
+		}
+		else if (curr->code == VOID) {
+			printf("[VOID] No value\n");
+		}
+		else if (curr->code == WHILE) {
+			printf("[WHILE] No value\n");
+		}
+		curr = curr->next;
+	}
 }
 
 int processKeyword(char* currentId) {
@@ -129,6 +178,7 @@ int getNextToken(FILE* file)
 	while (1) {
 		switch (state) {
 			case 0:
+			{
 				ch = fgetc(file);
 
 				if (isalpha(ch) || ch == '_') {
@@ -140,8 +190,20 @@ int getNextToken(FILE* file)
 					addToken(END);
 					return END;
 				}
+				else if (ch >= '1' && ch <= '9') {
+					state = 3;
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+				else if (ch == '0') {
+					state = 4;
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+			}
 				break;
 			case 1:
+			{
 				ch = fgetc(file);
 
 				if (isalnum(ch) || ch == '_') {
@@ -153,8 +215,10 @@ int getNextToken(FILE* file)
 					state = 2;
 					ungetc(ch, file);
 				}
+			}
 				break;
 			case 2:
+			{
 				currentId[currentIdLength++] = 0; // add string terminator
 
 				int processKeywordResult = processKeyword(currentId);
@@ -167,6 +231,66 @@ int getNextToken(FILE* file)
 					tk->text = currentId;
 					return tk->code;
 				}
+			}
+				break; 
+			case 3:
+			{
+				ch = fgetc(file);
+				if (isdigit(ch)) {
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+				else if (isspace(ch) || ch == EOF) {
+					state = 6;
+				}
+				else {
+					err("Invalid character on line ", line);
+				}
+			}
+				break;
+			case 4:
+			{
+				ch = fgetc(file);
+				if (ch == 'x' || ch == 'X') {
+					state = 5;
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+				else if (ch >= '0' && ch <= '7') {
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+				else if (isspace(ch) || ch == EOF) {
+					state = 6;
+				}
+				else {
+					err("Invalid character on line ", line);
+				}
+			}
+				break;
+			case 5:
+			{
+				ch = fgetc(file);
+				if (isalnum(ch)) {
+					currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+					currentId[currentIdLength++] = ch;
+				}
+				else if (isspace(ch) || ch == EOF) {
+					state = 6;
+				}
+				else {
+					err("Invalid character on line ", line);
+				}
+			}
+				break;
+			case 6:
+			{
+				currentId[currentIdLength++] = 0; // add string terminator
+
+				tk = addToken(CT_INT);
+				tk->i = strtol(currentId, NULL, 0);
+				return tk->code;
+			}
 				break;
 		}
 	}
@@ -192,6 +316,8 @@ int main(int argc, char** argv) {
 	do {
 		getNextTokenResult = getNextToken(file);
 	} while (getNextTokenResult != END);
+
+	showAtoms();
 
 	return 0;
 }
