@@ -13,15 +13,50 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\structs">
+      <UniqueIdentifier>{1abfc68f-e3fc-4ac4-93d9-12e26b3c89f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\functions">
+      <UniqueIdentifier>{874d61d7-0439-4dd0-8086-ff43c28d93aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\enums">
+      <UniqueIdentifier>{fbe4c76c-7294-45cf-8808-094801c84839}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenFunctions.h">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Token.h">
+      <Filter>Source Files\structs</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenCodes.h">
+      <Filter>Source Files\enums</Filter>
+    </ClCompile>
+    <ClCompile Include="LexicalAnalyzerFunctions.h">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorFunctions.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="LexicalAnalyzerFunctions.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenFunctions.cpp">
+      <Filter>Source Files\functions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="code">
       <Filter>Resource Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ErrorFunctions.h">
+      <Filter>Source Files\functions</Filter>
+    </None>
   </ItemGroup>
 </Project>
