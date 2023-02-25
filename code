@@ -1,1 +1,2 @@
-IF 3.0e3 'a'
+IF 3.0e3 'a' ELSE
+	END BREAK
