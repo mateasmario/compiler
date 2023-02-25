@@ -6,7 +6,7 @@
 
 #define SAFEALLOC(var,Type) if((var=(Type*)malloc(sizeof(Type)))==NULL)err("not enough memory");
 
-enum { ID, CT_INT, CT_REAL, END, BREAK, CHAR, DOUBLE, ELSE, FOR, IF, INT, RETURN, STRUCT, VOID, WHILE }; // token codes
+enum { ID, CT_INT, CT_REAL, CT_CHAR, END, BREAK, CHAR, DOUBLE, ELSE, FOR, IF, INT, RETURN, STRUCT, VOID, WHILE }; // token codes
 
 typedef struct _Token {
 	int code; // code (name)
@@ -73,6 +73,9 @@ void showAtoms() {
 		}
 		else if (curr->code == CT_REAL) {
 			printf("[CT_REAL] %f\n", curr->r);
+		}
+		else if (curr->code == CT_CHAR) {
+			printf("[CT_CHAR] %d\n", curr->i);
 		}
 		else if (curr->code == END) {
 			printf("[END] No value\n");
@@ -191,6 +194,9 @@ int getNextToken(FILE* file)
 				state = 1;
 				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == '\'') {
+				state = 14;
 			}
 			else if (ch == EOF) {
 				addToken(END);
@@ -438,6 +444,70 @@ int getNextToken(FILE* file)
 
 			tk = addToken(CT_REAL);
 			tk->r = strtod(currentId, NULL);
+			return tk->code;
+		}
+		break;
+		case 14:
+		{
+			ch = fgetc(file);
+			if (ch == '\\') {
+				state = 15;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch != '\'') {
+				state = 17;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 15:
+		{
+			ch = fgetc(file);
+			if (ch == 'a' || ch == 'b' || ch == 'f' || ch == 'n' || ch == 'r' || ch == 'n' || ch == 'r' || ch == 't' || ch == 'v' || ch == '\'' || ch == '?' || ch == '"' || ch == '\\' || ch == '0') {
+				state = 16;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 16:
+		{
+			ch = fgetc(file);
+			if (ch == '\'') {
+				state = 18;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 17:
+		{
+			ch = fgetc(file);
+			if (ch == '\'') {
+				state = 18;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 18: 
+		{
+			currentId[currentIdLength++] = 0; // add string terminator
+
+			tk = addToken(CT_CHAR);
+			tk->i = currentId[0];
 			return tk->code;
 		}
 		break;
