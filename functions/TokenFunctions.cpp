@@ -65,6 +65,9 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			else if (ch == '\'') {
 				state = 14;
 			}
+			else if (ch == '"') {
+				state = 19;
+			}
 			else if (ch == EOF) {
 				addToken(END, line, tokens, lastToken);
 				return END;
@@ -340,8 +343,11 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
 				currentId[currentIdLength++] = ch;
 			}
+			else if (ch == EOF) {
+				lineErr("EOF encountered before escape character", line);
+			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid escape character", line);
 			}
 		}
 		break;
@@ -378,6 +384,48 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			return tk->code;
 		}
 		break;
+		case 19:
+		{
+			ch = fgetc(file);
+			if (ch == '"') {
+				state = 21;
+			}
+			else if (ch == '\\') {
+				state = 20;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else if (ch == EOF) {
+				lineErr("EOF encountered before escape character", line);
+			}
+			else {
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+		}
+		break;
+		case 20:
+		{
+			ch = fgetc(file);
+			if (ch == 'a' || ch == 'b' || ch == 'f' || ch == 'n' || ch == 'r' || ch == 'n' || ch == 'r' || ch == 't' || ch == 'v' || ch == '\'' || ch == '?' || ch == '"' || ch == '\\' || ch == '0') {
+				state = 19;
+				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
+				currentId[currentIdLength++] = ch;
+			}
+			else {
+				lineErr("Invalid escape character", line);
+			}
+		}
+		break;
+		case 21:
+		{
+			currentId[currentIdLength++] = 0; // add string terminator
+
+			tk = addToken(CT_STRING, line, tokens, lastToken);
+			tk->text = currentId;
+			return tk->code;
+		}
+		break;
 		}
 	}
 }
@@ -396,6 +444,9 @@ void showAtoms(Token* tokens) {
 		}
 		else if (curr->code == CT_CHAR) {
 			printf("[CT_CHAR] %d\n", curr->i);
+		}
+		else if (curr->code == CT_STRING) {
+			printf("[CT_STRING] %s\n", curr->text);
 		}
 		else if (curr->code == END) {
 			printf("[END] No value\n");
