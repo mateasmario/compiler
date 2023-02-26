@@ -68,6 +68,63 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			else if (ch == '"') {
 				state = 19;
 			}
+			else if (ch == ',') {
+				state = 22;
+			}
+			else if (ch == ';') {
+				state = 23;
+			}
+			else if (ch == '(') {
+				state = 24;
+			}
+			else if (ch == ')') {
+				state = 25;
+			}
+			else if (ch == '[') {
+				state = 26;
+			}
+			else if (ch == ']') {
+				state = 27;
+			}
+			else if (ch == '{') {
+				state = 28;
+			}
+			else if (ch == '}') {
+				state = 29;
+			}
+			else if (ch == '+') {
+				state = 30;
+			}
+			else if (ch == '-') {
+				state = 31;
+			}
+			else if (ch == '*') {
+				state = 32;
+			}
+			else if (ch == '/') {
+				state = 33;
+			}
+			else if (ch == '.') {
+				state = 34;
+			}
+			else if (ch == '&') {
+				state = 35;
+			}
+			else if (ch == '|') {
+				state = 36;
+			}
+			else if (ch == '!') {
+				state = 37;
+			}
+			else if (ch == '=') {
+				state = 38;
+			}
+			else if (ch == '<') {
+				state = 39;
+			}
+			else if (ch == '>') {
+				state = 40;
+			}
 			else if (ch == EOF) {
 				addToken(END, line, tokens, lastToken);
 				return END;
@@ -426,8 +483,196 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			return tk->code;
 		}
 		break;
+		case 22:
+		{
+			tk = addToken(COMMA, line, tokens, lastToken);
+			return tk->code;
 		}
-	}
+		break;
+		case 23:
+		{
+			tk = addToken(SEMICOLON, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 24:
+		{
+			tk = addToken(LPAR, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 25:
+		{
+			tk = addToken(RPAR, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 26:
+		{
+			tk = addToken(LBRACKET, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 27:
+		{
+			tk = addToken(RBRACKET, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 28:
+		{
+			tk = addToken(LACC, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 29:
+		{
+			tk = addToken(RACC, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 30: 
+		{
+			tk = addToken(ADD, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 31:
+		{
+			tk = addToken(SUB, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 32:
+		{
+			tk = addToken(MUL, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 33:
+		{
+			tk = addToken(DIV, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 34:
+		{
+			tk = addToken(DOT, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 35:
+		{
+			ch = fgetc(file);
+			if (ch == '&') {
+				state = 41;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 36:
+		{
+			ch = fgetc(file);
+			if (ch == '|') {
+				state = 42;
+			}
+			else {
+				err("Invalid character");
+			}
+		}
+		break;
+		case 37:
+		{
+			ch = fgetc(file);
+			if (ch == '=') {
+				state = 43;
+			}
+			else {
+				ungetc(ch, file);
+				tk = addToken(NOT, line, tokens, lastToken);
+				return tk->code;
+			}
+		}
+		break;
+		case 38:
+		{
+			ch = fgetc(file);
+			if (ch == '=') {
+				state = 44;
+			}
+			else {
+				ungetc(ch, file);
+				tk = addToken(ASSIGN, line, tokens, lastToken);
+				return tk->code;
+			}
+		}
+		break;
+		case 39:
+		{
+			ch = fgetc(file);
+			if (ch == '=') {
+				state = 45;
+			}
+			else {
+				ungetc(ch, file);
+				tk = addToken(LESS, line, tokens, lastToken);
+				return tk->code;
+			}
+		}
+		break;
+		case 40:
+		{
+			ch = fgetc(file);
+			if (ch == '=') {
+				state = 46;
+			}
+			else {
+				ungetc(ch, file);
+				tk = addToken(GREATER, line, tokens, lastToken);
+				return tk->code;
+			}
+		}
+		break;
+		case 41:
+		{
+			tk = addToken(AND, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 42:
+		{
+			tk = addToken(OR, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 43:
+		{
+			tk = addToken(NOTEQ, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 44:
+		{
+			tk = addToken(EQUAL, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 45:
+		{
+			tk = addToken(LESSEQ, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		case 46:
+		{
+			tk = addToken(GREATEREQ, line, tokens, lastToken);
+			return tk->code;
+		}
+		break;
+		}
+		}
 }
 
 void showAtoms(Token* tokens) {
@@ -483,6 +728,75 @@ void showAtoms(Token* tokens) {
 		}
 		else if (curr->code == WHILE) {
 			printf("[WHILE] No value\n");
+		}
+		else if (curr->code == COMMA) {
+			printf("[COMMA] No value\n");
+		}
+		else if (curr->code == SEMICOLON) {
+			printf("[SEMICOLON] No value\n");
+		}
+		else if (curr->code == LPAR) {
+			printf("[LPAR] No value\n");
+		}
+		else if (curr->code == RPAR) {
+			printf("[RPAR] No value\n");
+		}
+		else if (curr->code == LBRACKET) {
+			printf("[LBRACKET] No value\n");
+		}
+		else if (curr->code == RBRACKET) {
+			printf("[RBRACKET] No value\n");
+		}
+		else if (curr->code == LACC) {
+			printf("[LACC] No value\n");
+		}
+		else if (curr->code == RACC) {
+			printf("[RACC] No value\n");
+		}
+		else if (curr->code == ADD) {
+			printf("[ADD] No value\n");
+		}		
+		else if (curr->code == SUB) {
+			printf("[SUB] No value\n");
+		}
+		else if (curr->code == MUL) {
+			printf("[MUL] No value\n");
+		}
+		else if (curr->code == DIV) {
+			printf("[DIV] No value\n");
+		}
+		else if (curr->code == DOT) {
+			printf("[DOT] No value\n");
+		}
+		else if (curr->code == AND) {
+			printf("[AND] No value\n");
+		}
+		else if (curr->code == OR) {
+			printf("[OR] No value\n");
+		}
+		else if (curr->code == NOT) {
+			printf("[NOT] No value\n");
+		}
+		else if (curr->code == ASSIGN) {
+			printf("[ASSIGN] No value\n");
+		}
+		else if (curr->code == EQUAL) {
+			printf("[EQUAL] No value\n");
+		}
+		else if (curr->code == NOTEQ) {
+			printf("[NOTEQ] No value\n");
+		}
+		else if (curr->code == LESS) {
+			printf("[LESS] No value\n");
+		}
+		else if (curr->code == LESSEQ) {
+			printf("[LESSEQ] No value\n");
+		}
+		else if (curr->code == GREATER) {
+			printf("[GREATER] No value\n");
+		}
+		else if (curr->code == GREATEREQ) {
+			printf("[GREATEREQ] No value\n");
 		}
 		curr = curr->next;
 	}
