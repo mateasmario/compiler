@@ -551,8 +551,18 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		break;
 		case 33:
 		{
-			tk = addToken(DIV, line, tokens, lastToken);
-			return tk->code;
+			ch = fgetc(file);
+			if (ch == '/') {
+				state = 47;
+			}
+			else if (ch == '*') {
+				state = 48;
+			}
+			else {
+				ungetc(ch, file);
+				tk = addToken(DIV, line, tokens, lastToken);
+				return tk->code;
+			}
 		}
 		break;
 		case 34:
@@ -669,6 +679,41 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		{
 			tk = addToken(GREATEREQ, line, tokens, lastToken);
 			return tk->code;
+		}
+		break;
+		case 47:
+		{
+			ch = fgetc(file);
+			if (ch == '\n' || ch == EOF) {
+				return -10;
+			}
+		}
+		break;
+		case 48:
+		{
+			ch = fgetc(file);
+			if (ch == '*') {
+				state = 49;
+			}
+			else if (ch == EOF) {
+				err("Comment not closed before EOF");
+			}
+		}
+		break;
+		case 49:
+		{
+			ch = fgetc(file);
+			if (ch == '/') {
+				state = 50;
+			}
+			else if (ch != '*') {
+				state = 48;
+			}
+		}
+		break;
+		case 50:
+		{
+			return -10;
 		}
 		break;
 		}
