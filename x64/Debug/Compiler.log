@@ -1,5 +1,2 @@
-﻿  Main.cpp
-  LexicalAnalyzerFunctions.cpp
-  TokenFunctions.cpp
-  Generating Code...
-  Compiler.vcxproj -> E:\CTI\Year 3\CT\Compiler\x64\Debug\Compiler.exe
+﻿  TokenFunctions.cpp
+  Compiler.vcxproj -> E:\CTI\III\CT\Compiler\x64\Debug\Compiler.exe

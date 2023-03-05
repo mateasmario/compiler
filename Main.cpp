@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 	int getNextTokenResult;
 
 	do {
-		getNextTokenResult = getNextToken(line, file, &tokens, &lastToken);
+		getNextTokenResult = getNextToken(&line, file, &tokens, &lastToken);
 	} while (getNextTokenResult != END);
 
 	showAtoms(tokens);	

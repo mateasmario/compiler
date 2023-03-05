@@ -39,7 +39,7 @@ Token* addToken(int code, int line, Token** tokens, Token** lastToken)
 	return tk;
 }
 
-int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
+int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 {
 	int state = 0;
 	char ch;
@@ -55,7 +55,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			ch = fgetc(file);
 
 			if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 			}
 			else if (isalpha(ch) || ch == '_') {
 				state = 1;
@@ -126,7 +126,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				state = 40;
 			}
 			else if (ch == EOF) {
-				addToken(END, line, tokens, lastToken);
+				addToken(END, *line, tokens, lastToken);
 				return END;
 			}
 			else if (ch >= '1' && ch <= '9') {
@@ -140,7 +140,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (!isspace(ch)) {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -163,13 +163,13 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		{
 			currentId[currentIdLength++] = 0; // add string terminator
 
-			int processKeywordResult = processKeyword(currentId, line, tokens, lastToken);
+			int processKeywordResult = processKeyword(currentId, *line, tokens, lastToken);
 
 			if (processKeywordResult != -1) {
 				return processKeywordResult;
 			}
 			else {
-				tk = addToken(ID, line, tokens, lastToken);
+				tk = addToken(ID, *line, tokens, lastToken);
 				tk->text = currentId;
 				return tk->code;
 			}
@@ -193,14 +193,14 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 				state = 7;
 			}
 			else if (isspace(ch) || ch == EOF) {
 				state = 7;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -225,14 +225,14 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				state = 8;
 			}
 			else if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 				state = 7;
 			}
 			else if (isspace(ch) || ch == EOF) {
 				state = 7;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -245,7 +245,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -257,14 +257,14 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 				state = 7;
 			}
 			else if (isspace(ch) || ch == EOF) {
 				state = 7;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -272,7 +272,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		{
 			currentId[currentIdLength++] = 0; // add string terminator
 
-			tk = addToken(CT_INT, line, tokens, lastToken);
+			tk = addToken(CT_INT, *line, tokens, lastToken);
 			tk->i = strtol(currentId, NULL, 0);
 			return tk->code;
 		}
@@ -286,7 +286,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -303,7 +303,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 				state = 13;
 			}
 			else if (isspace(ch) || ch == EOF) {
@@ -325,7 +325,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 				state = 11;
 			}
 			else if (isspace(ch) || ch == EOF) {
@@ -342,7 +342,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -354,14 +354,14 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == '\n') {
-				line++;
+				*line = *line + 1;;
 				state = 13;
 			}
 			else if (isspace(ch) || ch == EOF) {
 				state = 13;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -369,7 +369,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		{
 			currentId[currentIdLength++] = 0; // add string terminator
 
-			tk = addToken(CT_REAL, line, tokens, lastToken);
+			tk = addToken(CT_REAL, *line, tokens, lastToken);
 			tk->r = strtod(currentId, NULL);
 			return tk->code;
 		}
@@ -388,7 +388,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -401,10 +401,10 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == EOF) {
-				lineErr("EOF encountered before escape character", line);
+				lineErr("EOF encountered before escape character", *line);
 			}
 			else {
-				lineErr("Invalid escape character", line);
+				lineErr("Invalid escape character", *line);
 			}
 		}
 		break;
@@ -415,7 +415,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				state = 18;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -428,7 +428,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else {
-				lineErr("Invalid character", line);
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
@@ -436,7 +436,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		{
 			currentId[currentIdLength++] = 0; // add string terminator
 
-			tk = addToken(CT_CHAR, line, tokens, lastToken);
+			tk = addToken(CT_CHAR, *line, tokens, lastToken);
 			tk->i = currentId[0];
 			return tk->code;
 		}
@@ -453,7 +453,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else if (ch == EOF) {
-				lineErr("EOF encountered before escape character", line);
+				lineErr("EOF encountered before escape character", *line);
 			}
 			else {
 				currentId = (char*)realloc(currentId, (currentIdLength + 1) * sizeof(char));
@@ -470,7 +470,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 				currentId[currentIdLength++] = ch;
 			}
 			else {
-				lineErr("Invalid escape character", line);
+				lineErr("Invalid escape character", *line);
 			}
 		}
 		break;
@@ -478,74 +478,74 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 		{
 			currentId[currentIdLength++] = 0; // add string terminator
 
-			tk = addToken(CT_STRING, line, tokens, lastToken);
+			tk = addToken(CT_STRING, *line, tokens, lastToken);
 			tk->text = currentId;
 			return tk->code;
 		}
 		break;
 		case 22:
 		{
-			tk = addToken(COMMA, line, tokens, lastToken);
+			tk = addToken(COMMA, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 23:
 		{
-			tk = addToken(SEMICOLON, line, tokens, lastToken);
+			tk = addToken(SEMICOLON, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 24:
 		{
-			tk = addToken(LPAR, line, tokens, lastToken);
+			tk = addToken(LPAR, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 25:
 		{
-			tk = addToken(RPAR, line, tokens, lastToken);
+			tk = addToken(RPAR, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 26:
 		{
-			tk = addToken(LBRACKET, line, tokens, lastToken);
+			tk = addToken(LBRACKET, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 27:
 		{
-			tk = addToken(RBRACKET, line, tokens, lastToken);
+			tk = addToken(RBRACKET, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 28:
 		{
-			tk = addToken(LACC, line, tokens, lastToken);
+			tk = addToken(LACC, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 29:
 		{
-			tk = addToken(RACC, line, tokens, lastToken);
+			tk = addToken(RACC, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 30: 
 		{
-			tk = addToken(ADD, line, tokens, lastToken);
+			tk = addToken(ADD, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 31:
 		{
-			tk = addToken(SUB, line, tokens, lastToken);
+			tk = addToken(SUB, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 32:
 		{
-			tk = addToken(MUL, line, tokens, lastToken);
+			tk = addToken(MUL, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
@@ -560,14 +560,14 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			}
 			else {
 				ungetc(ch, file);
-				tk = addToken(DIV, line, tokens, lastToken);
+				tk = addToken(DIV, *line, tokens, lastToken);
 				return tk->code;
 			}
 		}
 		break;
 		case 34:
 		{
-			tk = addToken(DOT, line, tokens, lastToken);
+			tk = addToken(DOT, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
@@ -601,7 +601,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			}
 			else {
 				ungetc(ch, file);
-				tk = addToken(NOT, line, tokens, lastToken);
+				tk = addToken(NOT, *line, tokens, lastToken);
 				return tk->code;
 			}
 		}
@@ -614,7 +614,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			}
 			else {
 				ungetc(ch, file);
-				tk = addToken(ASSIGN, line, tokens, lastToken);
+				tk = addToken(ASSIGN, *line, tokens, lastToken);
 				return tk->code;
 			}
 		}
@@ -627,7 +627,7 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			}
 			else {
 				ungetc(ch, file);
-				tk = addToken(LESS, line, tokens, lastToken);
+				tk = addToken(LESS, *line, tokens, lastToken);
 				return tk->code;
 			}
 		}
@@ -640,44 +640,44 @@ int getNextToken(int line, FILE* file, Token** tokens, Token** lastToken)
 			}
 			else {
 				ungetc(ch, file);
-				tk = addToken(GREATER, line, tokens, lastToken);
+				tk = addToken(GREATER, *line, tokens, lastToken);
 				return tk->code;
 			}
 		}
 		break;
 		case 41:
 		{
-			tk = addToken(AND, line, tokens, lastToken);
+			tk = addToken(AND, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 42:
 		{
-			tk = addToken(OR, line, tokens, lastToken);
+			tk = addToken(OR, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 43:
 		{
-			tk = addToken(NOTEQ, line, tokens, lastToken);
+			tk = addToken(NOTEQ, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 44:
 		{
-			tk = addToken(EQUAL, line, tokens, lastToken);
+			tk = addToken(EQUAL, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 45:
 		{
-			tk = addToken(LESSEQ, line, tokens, lastToken);
+			tk = addToken(LESSEQ, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
 		case 46:
 		{
-			tk = addToken(GREATEREQ, line, tokens, lastToken);
+			tk = addToken(GREATEREQ, *line, tokens, lastToken);
 			return tk->code;
 		}
 		break;
