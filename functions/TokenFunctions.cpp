@@ -39,6 +39,12 @@ Token* addToken(int code, int line, Token** tokens, Token** lastToken)
 	return tk;
 }
 
+int isAllowedSymbol(char ch) {
+	if (ch == ',' || ch == ';' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '.' || ch == '&' || ch == '|' || ch == '!' || ch == '=' || ch == '<' || ch == '>')
+		return true;
+	return false;
+}
+
 int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 {
 	int state = 0;
@@ -199,6 +205,10 @@ int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 			else if (isspace(ch) || ch == EOF) {
 				state = 7;
 			}
+			else if (isAllowedSymbol(ch)) {
+				ungetc(ch, file);
+				state = 7;
+			}
 			else {
 				lineErr("Invalid character", *line);
 			}
@@ -229,6 +239,10 @@ int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 				state = 7;
 			}
 			else if (isspace(ch) || ch == EOF) {
+				state = 7;
+			}
+			else if (isAllowedSymbol(ch)) {
+				ungetc(ch, file);
 				state = 7;
 			}
 			else {
@@ -262,6 +276,10 @@ int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 			}
 			else if (isspace(ch) || ch == EOF) {
 				state = 7;
+			}
+			else if (isAllowedSymbol(ch)) {
+				state = 7;
+				ungetc(ch, file);
 			}
 			else {
 				lineErr("Invalid character", *line);
@@ -358,6 +376,10 @@ int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 				state = 13;
 			}
 			else if (isspace(ch) || ch == EOF) {
+				state = 13;
+			}
+			else if (isAllowedSymbol(ch)) {
+				ungetc(ch, file);
 				state = 13;
 			}
 			else {
