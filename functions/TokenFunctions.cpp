@@ -11,6 +11,9 @@
 
 #define SAFEALLOC(var,Type) if((var=(Type*)malloc(sizeof(Type)))==NULL)err("not enough memory");
 
+Token* lastToken;
+Token* tokens;
+
 void tkerr(const Token* tk, const char* fmt, ...)
 {
 	va_list va;

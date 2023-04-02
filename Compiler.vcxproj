@@ -143,6 +143,7 @@
     <ClCompile Include="functions\LexicalAnalyzerFunctions.cpp" />
     <ClCompile Include="functions\TokenFunctions.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="functions\SyntacticAnalyzerFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="code" />
@@ -153,6 +154,7 @@
     <ClInclude Include="functions\LexicalAnalyzerFunctions.h" />
     <ClInclude Include="functions\TokenFunctions.h" />
     <ClInclude Include="structs\Token.h" />
+    <ClInclude Include="functions\SyntacticAnalyzerFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

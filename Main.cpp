@@ -9,9 +9,7 @@
 #include "functions/LexicalAnalyzerFunctions.h"
 #include "functions/ErrorFunctions.h"
 #include "functions/TokenFunctions.h"
-
-Token* lastToken;
-Token* tokens;
+#include "functions/SyntacticAnalyzerFunctions.h"
 
 int line = 1;
 
@@ -36,7 +34,10 @@ int main(int argc, char** argv) {
 		getNextTokenResult = getNextToken(&line, file, &tokens, &lastToken);
 	} while (getNextTokenResult != END);
 
-	showAtoms(tokens);	
+	//showAtoms(tokens);
+
+	// Syntactical analyzer
+	analyzeSyntax();
 
 	return 0;
 }

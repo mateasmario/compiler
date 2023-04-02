@@ -9,4 +9,7 @@ void tkerr(const Token * tk, const char* fmt, ...);
 Token* addToken(int code, int line, Token ** tokens, Token ** lastToken);
 void showAtoms(Token* tokens);
 
+extern Token* lastToken;
+extern Token* tokens;
+
 #endif
