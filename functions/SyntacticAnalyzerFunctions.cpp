@@ -46,13 +46,14 @@ int unit() {
 	Token* startTk = tokens;
 
 	while (1) {
-		if (declStruct()) {
+		if (declStruct() == -1) {
+			tokens = startTk;
+			return 0;
+		}
+		else if (declFunc()) {
 
 		}
-		if (declFunc()) {
-
-		}
-		if (declVar()) {
+		else if (declVar()) {
 
 		}
 		else {
@@ -95,6 +96,9 @@ int declStruct() {
 				else {
 					tkerr(tokens, "Missing } when ending struct body.");
 				}
+			}
+			else if (consume(ID)) {
+				return -1; // a struct typebase is found instead of a struct declaration
 			}
 			else {
 				tkerr(tokens, "Missing { at the beggining of the struct body.");
@@ -250,7 +254,6 @@ int declFunc() {
 					}
 				}
 				if (consume(SEMICOLON)) {
-					printf("Variable declaration\n");
 					return 1;
 				}
 				else {
@@ -436,7 +439,7 @@ int stm() {
 			return 1;
 		}
 		else {
-			tkerr(tokens, "Missing ; at the end of the statement.");
+			tkerr(tokens, "Expected ; at the end of the statement.");
 		}
 	}
 	else {
@@ -502,6 +505,7 @@ int exprAssign() {
 		}
 		else {
 			tokens = startTk;
+
 			if (exprOr()) {
 				return 1;
 			}
@@ -1007,7 +1011,7 @@ int exprPostfix1() {
 				}
 			}
 			else {
-				tkerr(tokens, "Missing ) after expression.");
+				tkerr(tokens, "Missing ] after expression.");
 
 				tokens = startTk;
 				return 0;
@@ -1111,7 +1115,12 @@ int exprPrimary() {
 void analyzeSyntax() {
 	while (tokens != NULL) {
 		if (unit()) {
-			printf("Yes!");
+		}
+		else if (declStruct()) {
+		}
+		else if (declVar()) {
+		}
+		else if (arrayDecl()) {
 		}
 	}
 }

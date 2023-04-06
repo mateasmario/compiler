@@ -330,6 +330,10 @@ int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 			else if (isspace(ch) || ch == EOF) {
 				state = 13;
 			}
+			else if (isAllowedSymbol(ch)) {
+				ungetc(ch, file);
+				state = 13;
+			}
 		}
 		break;
 		case 10:
