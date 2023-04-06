@@ -222,6 +222,7 @@ int declFunc() {
 				}
 				if (consume(RPAR)) {
 					if (stmCompound()) {
+						printf("Function declaration\n");
 						return 1;
 					}
 					else {
@@ -233,7 +234,28 @@ int declFunc() {
 				}
 			}
 			else {
-				tkerr(tokens, "Expected ( after the function identifier.");
+				arrayDecl();
+				while (1) {
+					if (consume(COMMA)) {
+
+					}
+					else if (consume(ID)) {
+
+					}
+					else if (arrayDecl()) {
+
+					}
+					else {
+						break;
+					}
+				}
+				if (consume(SEMICOLON)) {
+					printf("Variable declaration\n");
+					return 1;
+				}
+				else {
+					tkerr(tokens, "Missing ; at the end of the type base.");
+				}
 			}
 		}
 		else {
@@ -409,13 +431,17 @@ int stm() {
 			tkerr(tokens, "Missing ; after RETURN statement.");
 		}
 	}
-	else {
-		expr();
+	else if (expr()) {
 		if (consume(SEMICOLON)) {
 			return 1;
 		}
 		else {
 			tkerr(tokens, "Missing ; at the end of the statement.");
+		}
+	}
+	else {
+		if (consume(SEMICOLON)) {
+			return 1;
 		}
 	}
 
@@ -475,7 +501,13 @@ int exprAssign() {
 			}
 		}
 		else {
-			tkerr(tokens, "Missing assignment operator.");
+			tokens = startTk;
+			if (exprOr()) {
+				return 1;
+			}
+			else {
+				tkerr(tokens, "Missing assignment operator.");
+			}
 		}
 	}
 	if (exprOr()) {
@@ -1078,7 +1110,7 @@ int exprPrimary() {
 
 void analyzeSyntax() {
 	while (tokens != NULL) {
-		if (exprEq()) {
+		if (unit()) {
 			printf("Yes!");
 		}
 	}
