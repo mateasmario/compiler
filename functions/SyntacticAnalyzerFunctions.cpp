@@ -196,6 +196,7 @@ int typeName() {
 
 	if (typeBase()) {
 		arrayDecl();
+		return 1;
 	}
 		
 	tokens = startTk;
@@ -935,8 +936,26 @@ int exprCast() {
 				tkerr(tokens, "Missing ) after type name.");
 			}
 		}
+		else if (expr()) {
+			while (1) {
+				if (consume(COMMA)) {
+					if (expr()) {
+
+					}
+					else {
+						tkerr(tokens, "Missing expression after ,");
+					}
+				}
+				else {
+					break;
+				}
+			}
+			if (consume(RPAR)) {
+				return 1;
+			}
+		}
 		else {
-			tkerr(tokens, "Missing type name after (.");
+			tkerr(tokens, "Missing type name or expression after (.");
 		}
 	}
 	else if (exprUnary()) {
@@ -1103,6 +1122,19 @@ int exprPrimary() {
 				tkerr(tokens, "Missing ) after expression.");
 			}
 		}
+		else if (typeName()) { // if typecast
+			if (consume(RPAR)) {
+				if (exprCast()) {
+					return 1;
+				}
+				else {
+					tkerr(tokens, "Missing cast expression.");
+				}
+			}
+			else {
+				tkerr(tokens, "Missing ) after type name.");
+			}
+		}
 		else {
 			tkerr(tokens, "Missing expression after (.");
 		}
@@ -1121,6 +1153,15 @@ void analyzeSyntax() {
 		else if (declVar()) {
 		}
 		else if (arrayDecl()) {
+		}
+		else if (declFunc()) {
+
+		}
+		else if (stm()) {
+
+		}
+		else if (expr()) {
+
 		}
 	}
 }
