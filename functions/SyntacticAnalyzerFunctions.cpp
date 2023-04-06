@@ -137,7 +137,7 @@ int declVar() {
 				return 1;
 			}
 			else {
-				tkerr(tokens, "Missing ; at the end of the type base.");
+				tkerr(tokens, "Unexpected character at the type base declaration. Maybe you're missing a semicolon (;)?");
 			}
 		}
 		else {
@@ -227,7 +227,6 @@ int declFunc() {
 				}
 				if (consume(RPAR)) {
 					if (stmCompound()) {
-						printf("Function declaration\n");
 						return 1;
 					}
 					else {
@@ -258,7 +257,7 @@ int declFunc() {
 					return 1;
 				}
 				else {
-					tkerr(tokens, "Missing ; at the end of the type base.");
+					tkerr(tokens, "Unexpected character at the type base declaration. Maybe you're missing a semicolon (;)?");
 				}
 			}
 		}
@@ -440,7 +439,7 @@ int stm() {
 			return 1;
 		}
 		else {
-			tkerr(tokens, "Expected ; at the end of the statement.");
+			tkerr(tokens, "Unexpected character in the statement. Maybe you're missing a semicolon (;)?");
 		}
 	}
 	else {
