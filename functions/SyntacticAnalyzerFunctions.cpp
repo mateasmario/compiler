@@ -121,13 +121,9 @@ int declVar() {
 			arrayDecl();
 			while (1) {
 				if (consume(COMMA)) {
-
-				}
-				else if (consume(ID)) {
-
-				}
-				else if (arrayDecl()) {
-
+					if (consume(ID)) {
+						arrayDecl();
+					}
 				}
 				else {
 					break;
@@ -137,7 +133,7 @@ int declVar() {
 				return 1;
 			}
 			else {
-				tkerr(tokens, "Unexpected character at the type base declaration. Maybe you're missing a semicolon (;)?");
+				tkerr(tokens, "Missing ; or syntax error in type base declaration.");
 			}
 		}
 		else {
@@ -241,13 +237,9 @@ int declFunc() {
 				arrayDecl();
 				while (1) {
 					if (consume(COMMA)) {
-
-					}
-					else if (consume(ID)) {
-
-					}
-					else if (arrayDecl()) {
-
+						if (consume(ID)) {
+							arrayDecl();
+						}
 					}
 					else {
 						break;
@@ -257,7 +249,7 @@ int declFunc() {
 					return 1;
 				}
 				else {
-					tkerr(tokens, "Unexpected character at the type base declaration. Maybe you're missing a semicolon (;)?");
+					tkerr(tokens, "Missing ; or syntax error in type base declaration.");
 				}
 			}
 		}
@@ -439,7 +431,7 @@ int stm() {
 			return 1;
 		}
 		else {
-			tkerr(tokens, "Unexpected character in the statement. Maybe you're missing a semicolon (;)?");
+			tkerr(tokens, "Missing ; or syntax error in statement.");
 		}
 	}
 	else {
