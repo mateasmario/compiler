@@ -18,7 +18,7 @@ void tkerr(const Token* tk, const char* fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
-	fprintf(stderr, "error in line %d: ", tk->line);
+	fprintf(stderr, "Error on line %d: ", tk->line);
 	vfprintf(stderr, fmt, va);
 	fputc('\n', stderr);
 	va_end(va);
@@ -333,6 +333,9 @@ int getNextToken(int *line, FILE* file, Token** tokens, Token** lastToken)
 			else if (isAllowedSymbol(ch)) {
 				ungetc(ch, file);
 				state = 13;
+			}
+			else {
+				lineErr("Invalid character", *line);
 			}
 		}
 		break;
