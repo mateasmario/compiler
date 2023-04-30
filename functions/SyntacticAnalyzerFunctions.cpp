@@ -6,12 +6,14 @@
 
 Token* consumedTk;
 int crtDepth;
-Symbol* crtStruct;
-Symbol* crtFunc;
+Symbol *crtStruct;
+Symbol *crtFunc;
+
+Type* outType;
 
 Symbols symbols;
 
-int typeBase();
+int typeBase(Type &type);
 int stmCompound();
 int funcArg();
 int exprAssign();
@@ -19,7 +21,7 @@ int expr();
 int declVar();
 int declStruct();
 int declFunc();
-int arrayDecl();
+int arrayDecl(Type& type);
 int exprUnary();
 int exprRel1();
 int exprRel();
@@ -133,13 +135,20 @@ int declStruct() {
 int declVar() {
 	Token* startTk = tokens;
 
-	if (typeBase()) {
+	Type type;
+
+	if (typeBase(type)) {
 		if (consume(ID)) {
-			arrayDecl();
+			Token* idToken = consumedTk;
+			Type type;
+			arrayDecl(type);
+			addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
 			while (1) {
 				if (consume(COMMA)) {
 					if (consume(ID)) {
-						arrayDecl();
+						arrayDecl(type);
+						idToken = consumedTk;
+						addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
 					}
 				}
 				else {
@@ -162,20 +171,32 @@ int declVar() {
 	return 0;
 }
 
-int typeBase() {
+int typeBase(Type& type) {
 	Token* startTk = tokens;
 
 	if (consume(INT)) {
+		type.typeBase = TB_INT;
 		return 1;
 	}
 	else if (consume(DOUBLE)) {
+		type.typeBase = TB_DOUBLE;
 		return 1;
 	}
 	else if (consume(CHAR)) {
+		type.typeBase = TB_CHAR;
 		return 1;
 	}
 	else if (consume(STRUCT)) {
 		if (consume(ID)) {
+			Token* idToken = consumedTk;
+
+			Symbol* s = findSymbol(&symbols, idToken->text);
+			if (s == NULL)tkerr(startTk, "undefined symbol: %s", idToken->text);
+			if (s->cls != CLS_STRUCT)tkerr(startTk, "%s is not a struct", idToken->text);
+			
+			type.typeBase = TB_STRUCT;
+			type.s = s;
+			
 			return 1;
 		}
 		else {
@@ -187,12 +208,16 @@ int typeBase() {
 	return 0;
 }
 
-int arrayDecl() {
+int arrayDecl(Type& type) {
 	Token* startTk = tokens;
+
+	// For now, do not return the real number of elements
+	type.nElements = -1;
 
 	if (consume(LBRACKET)) {
 		expr();
 		if (consume(RBRACKET)) {
+			type.nElements = 1;
 			return 1;
 		}
 		else {
@@ -204,11 +229,11 @@ int arrayDecl() {
 	return 0;
 }
 
-int typeName() {
+int typeName(Type &type) {
 	Token* startTk = tokens;
 
-	if (typeBase()) {
-		arrayDecl();
+	if (typeBase(type)) {
+		arrayDecl(type);
 		return 1;
 	}
 		
@@ -218,11 +243,25 @@ int typeName() {
 
 int declFunc() {
 	Token* startTk = tokens;
+	Type type;
 
-	if (typeBase()) {
-		consume(MUL);
+	if (typeBase(type)) {
+		if (consume(MUL)) {
+			type.nElements = 0;
+		}
+		else {
+			type.nElements = -1;
+		}
 		if (consume(ID)) {
+			Token* idToken = consumedTk;
 			if (consume(LPAR)) {
+				if (findSymbol(&symbols, idToken->text))
+					tkerr(startTk, "symbol redefinition: %s", idToken->text);
+				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
+				initSymbols(&crtFunc->args);
+				crtFunc->type = type;
+				crtDepth++;
+
 				if (funcArg()) {
 					while (1) {
 						if (consume(COMMA)) {
@@ -251,11 +290,18 @@ int declFunc() {
 				}
 			}
 			else {
-				arrayDecl();
+				Token* idToken = consumedTk;
+				Type type;
+				arrayDecl(type);
+				addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
+				arrayDecl(type);
 				while (1) {
 					if (consume(COMMA)) {
 						if (consume(ID)) {
-							arrayDecl();
+							idToken = consumedTk;
+							arrayDecl(type);
+							addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
+							arrayDecl(type);
 						}
 					}
 					else {
@@ -275,8 +321,17 @@ int declFunc() {
 		}
 	}
 	if (consume(VOID)) {
+		type.typeBase = TB_VOID;
 		if (consume(ID)) {
+			Token* idToken = consumedTk;
 			if (consume(LPAR)) {
+				if (findSymbol(&symbols, idToken->text))
+					tkerr(startTk, "symbol redefinition: %s", idToken->text);
+				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
+				initSymbols(&crtFunc->args);
+				crtFunc->type = type;
+				crtDepth++;
+
 				if (funcArg()) {
 					while (1) {
 						if (consume(COMMA)) {
@@ -293,12 +348,15 @@ int declFunc() {
 					}
 				}
 				if (consume(RPAR)) {
+					crtDepth--;
 					if (stmCompound()) {
 						return 1;
 					}
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
 					}
+					deleteSymbolsAfter(&symbols, &crtFunc);
+					crtFunc = NULL;
 				}
 				else {
 					tkerr(tokens, "Expected ) at the end of the function declaration.");
@@ -320,9 +378,19 @@ int declFunc() {
 int funcArg() {
 	Token* startTk = tokens;
 
-	if (typeBase()) {
+	Type type;
+
+	if (typeBase(type)) {
 		if (consume(ID)) {
-			arrayDecl();
+			Token* tokenId = consumedTk;
+			arrayDecl(type);
+
+			Symbol* s = addSymbol(&symbols, tokenId->text, CLS_VAR, crtDepth);
+			s->mem = MEM_ARG;
+			s->type = type;
+			s = addSymbol(&crtFunc->args, tokenId->text, CLS_VAR, crtDepth);
+			s->mem = MEM_ARG;
+			s->type = type;
 
 			return 1;
 		}
@@ -463,8 +531,17 @@ int stm() {
 
 int stmCompound() {
 	Token* startTk = tokens;
+	Symbol* start;
+
+	if (symbols.end == symbols.begin) {
+		start = symbols.begin[0];
+	}
+	else {
+		start = symbols.end[-1];
+	}
 
 	if (consume(LACC)) {
+		crtDepth++;
 		while (1) {
 			if (declVar()) {
 
@@ -478,6 +555,8 @@ int stmCompound() {
 		}
 
 		if (consume(RACC)) {
+			crtDepth--;
+			deleteSymbolsAfter(&symbols, &start);
 			return 1;
 		}
 		else {
@@ -930,8 +1009,10 @@ int exprMul1() {
 int exprCast() {
 	Token* startTk = tokens;
 
+	Type type;
+
 	if (consume(LPAR)) {
-		if (typeName()) {
+		if (typeName(type)) {
 			if (consume(RPAR)) {
 				if (exprCast()) {
 					return 1;
@@ -1078,6 +1159,8 @@ int exprPostfix1() {
 int exprPrimary() {
 	Token* startTk = tokens;
 
+	Type type;
+
 	if (consume(ID)) {
 		if (consume(LPAR)) {
 			if (expr()) {
@@ -1130,7 +1213,7 @@ int exprPrimary() {
 				tkerr(tokens, "Missing ) after expression.");
 			}
 		}
-		else if (typeName()) { // if typecast
+		else if (typeName(type)) { // if typecast
 			if (consume(RPAR)) {
 				if (exprCast()) {
 					return 1;
@@ -1153,6 +1236,8 @@ int exprPrimary() {
 }
 
 void analyzeSyntax() {
+	Type type;
+
 	while (tokens != NULL) {
 		if (unit()) {
 		}
@@ -1160,7 +1245,7 @@ void analyzeSyntax() {
 		}
 		else if (declVar()) {
 		}
-		else if (arrayDecl()) {
+		else if (arrayDecl(type)) {
 		}
 		else if (declFunc()) {
 

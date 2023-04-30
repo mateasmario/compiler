@@ -18,17 +18,17 @@ void initSymbols(Symbols* symbols)
 Symbol* addSymbol(Symbols* symbols, const char* name, int cls, int crtDepth)
 {
 	Symbol* s;
-	if (symbols->end == symbols->after) { // create more room
-		int count = symbols->after - symbols->begin;
+	if ((symbols)->end == (symbols)->after) { // create more room
+		int count = (symbols)->after - (symbols)->begin;
 		int n = count * 2; // double the room
 		if (n == 0)n = 1; // needed for the initial case
-		symbols->begin = (Symbol**)realloc(symbols->begin, n * sizeof(Symbol*));
-		if (symbols->begin == NULL)err("not enough memory");
-		symbols->end = symbols->begin + count;
-		symbols->after = symbols->begin + n;
+		(symbols)->begin = (Symbol**)realloc((symbols)->begin, n * sizeof(Symbol*));
+		if ((symbols)->begin == NULL)err("not enough memory");
+		(symbols)->end = (symbols)->begin + count;
+		(symbols)->after = (symbols)->begin + n;
 	}
 	SAFEALLOC(s, Symbol)
-	* symbols->end++ = s;
+	*symbols->end++ = s;
 	s->name = name;
 	s->cls = cls;
 	s->depth = crtDepth;
@@ -41,14 +41,6 @@ Symbol* findSymbol(Symbols* symbols, const char* name) {
 	// If symbols list is empty
 	if (symbols->begin == symbols->end)
 		return NULL;
-
-	// If symbols list contains one element
-	if (symbols->end - symbols->begin == 1) {
-		if (strcmp((*symbols->begin)->name, name) == 0) {
-			return *symbols->begin;
-		}
-		return NULL;
-	}
 
 	// Iterate from end to the beginning of the list
 	for (p = symbols->end - 1;; p--) {
@@ -64,7 +56,7 @@ Symbol* findSymbol(Symbols* symbols, const char* name) {
 	return NULL;
 }
 
-void addVar(Symbols symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth)
+void addVar(Symbols *symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth)
 {
 	Symbol* s;
 	if (crtStruct) {
@@ -73,16 +65,16 @@ void addVar(Symbols symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtSt
 		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR, crtDepth);
 	}
 	else if (crtFunc) {
-		s = findSymbol(&symbols, tkName->text);
+		s = findSymbol(symbols, tkName->text);
 		if (s && s->depth == crtDepth)
 			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
-		s = addSymbol(&symbols, tkName->text, CLS_VAR, crtDepth);
+		s = addSymbol(symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_LOCAL;
 	}
 	else {
-		if (findSymbol(&symbols, tkName->text))
+		if (findSymbol(symbols, tkName->text))
 			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
-		s = addSymbol(&symbols, tkName->text, CLS_VAR, crtDepth);
+		s = addSymbol(symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_GLOBAL;
 	}
 	s->type = *t;
@@ -91,11 +83,10 @@ void addVar(Symbols symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtSt
 void deleteSymbolsAfter(Symbols* symbols, Symbol** start) {
 	Symbol** p;
 
-	for (p = start; p != symbols->end; ) {
+	/*for (p = symbols->end - 1; p != start; ) {
 		Symbol** temp = p;
 		p--;
-		free(temp);
-	}
+	}*/
 
 	*(symbols)->end = start[-1];
 }

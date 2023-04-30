@@ -1,4 +1,8 @@
 ﻿  SymbolFunctions.cpp
 E:\CTI\III\CT\Compiler\structs\Symbol.h(21,2): warning C4091: 'typedef ': ignored on left of '_Symbols' when no variable is declared
 E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(22,13): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(84,11): warning C4101: 'p': unreferenced local variable
+  SyntacticAnalyzerFunctions.cpp
+E:\CTI\III\CT\Compiler\structs\Symbol.h(21,2): warning C4091: 'typedef ': ignored on left of '_Symbols' when no variable is declared
+  Generating Code...
   Compiler.vcxproj -> E:\CTI\III\CT\Compiler\x64\Debug\Compiler.exe

@@ -1,8 +1,5 @@
-struct b {
-};
+int y;
 
-struct c {
-};
-
-struct b {
-};
+int z() {
+	int y;
+}
