@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../structs/Symbol.h"
 #include "../functions/EssentialFunctions.h"
 #include "../functions/ErrorFunctions.h"
+#include "../structs/Token.h"
 
 int crtDepth;
+Symbol* crtStruct;
+Symbol* crtFunc;
 
 void initSymbols(Symbols* symbols)
 {
@@ -32,4 +36,53 @@ Symbol* addSymbol(Symbols* symbols, const char* name, int cls)
 	s->cls = cls;
 	s->depth = crtDepth;
 	return s;
+}
+
+Symbol* findSymbol(Symbols* symbols, const char* name) {
+	Symbol** p;
+
+	// Iterate from end to the beginning of the list
+	for (p = symbols->end;p != symbols->begin;p--) {
+		if (strcmp((*p)->name, name) == 0) {
+			return *p;
+		}
+	}
+
+	return NULL;
+}
+
+void addVar(Token* crtTk, Token* tkName, Type* t)
+{
+	Symbol* s;
+	if (crtStruct) {
+		if (findSymbol(&crtStruct->members, tkName->text))
+			symbolErr(crtTk, "symbol redefinition: %s", tkName->text);
+		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR);
+	}
+	else if (crtFunc) {
+		s = findSymbol(&symbols, tkName->text);
+		if (s && s->depth == crtDepth)
+			symbolErr(crtTk, "symbol redefinition: %s", tkName->text);
+		s = addSymbol(&symbols, tkName->text, CLS_VAR);
+		s->mem = MEM_LOCAL;
+	}
+	else {
+		if (findSymbol(&symbols, tkName->text))
+			symbolErr(crtTk, "symbol redefinition: %s", tkName->text);
+		s = addSymbol(&symbols, tkName->text, CLS_VAR);
+		s->mem = MEM_GLOBAL;
+	}
+	s->type = *t;
+}
+
+void deleteSymbolsAfter(Symbols* symbols, Symbol** start) {
+	Symbol** p;
+
+	for (p = start; p != symbols->end; ) {
+		Symbol** temp = p;
+		p--;
+		free(temp);
+	}
+
+	*(symbols)->end = start[-1];
 }

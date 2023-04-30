@@ -1,4 +1,4 @@
 ﻿  SymbolFunctions.cpp
 E:\CTI\III\CT\Compiler\structs\Symbol.h(21,2): warning C4091: 'typedef ': ignored on left of '_Symbols' when no variable is declared
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(21,13): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(25,13): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
   Compiler.vcxproj -> E:\CTI\III\CT\Compiler\x64\Debug\Compiler.exe
