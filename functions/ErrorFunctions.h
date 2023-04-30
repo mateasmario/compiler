@@ -5,6 +5,5 @@
 
 void err(const char* fmt);
 void lineErr(const char* fmt, int line);
-void symbolErr(Token* crtTk, const char* message, char* tokenName);
 
 #endif

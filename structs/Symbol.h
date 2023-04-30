@@ -24,14 +24,12 @@ struct _Symbol {
 	const char* name; // a reference to the name stored in a token
 	int cls; // CLS_*
 	int mem; // MEM_*
-	Type type;
+	_Type type;
 	int depth; // 0-global, 1-in function, 2... - nested blocks in function
 	union {
 		Symbols args; // used only of functions
 		Symbols members; // used only for structs
 	};
 };
-
-Symbols symbols;
 
 #endif

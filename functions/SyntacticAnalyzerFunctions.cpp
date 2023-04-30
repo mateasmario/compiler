@@ -2,8 +2,14 @@
 #include "../enums/TokenCodes.h"
 #include "../functions/ErrorFunctions.h"
 #include "../functions/TokenFunctions.h"
+#include "../functions/SymbolFunctions.h"
 
 Token* consumedTk;
+int crtDepth;
+Symbol* crtStruct;
+Symbol* crtFunc;
+
+Symbols symbols;
 
 int typeBase();
 int stmCompound();
@@ -46,9 +52,11 @@ int unit() {
 	Token* startTk = tokens;
 
 	while (1) {
-		if (declStruct() == -1) {
-			tokens = startTk;
-			return 0;
+		if (int result = declStruct()) {
+			if (result == -1) {
+				tokens = startTk;
+				return 0;
+			}
 		}
 		else if (declFunc()) {
 
@@ -75,7 +83,16 @@ int declStruct() {
 
 	if (consume(STRUCT)) {
 		if (consume(ID)) {
+			Token* idToken = consumedTk;
 			if (consume(LACC)) {
+
+				// Symbolic Table
+				if (findSymbol(&symbols, idToken->text)) {
+					tkerr(idToken, "symbol redefinition: %s", idToken->text);
+				}
+				crtStruct = addSymbol(&symbols, idToken->text, CLS_STRUCT, crtDepth);
+				initSymbols(&crtStruct->members);
+
 				while (1) {
 					if (declVar()) {
 

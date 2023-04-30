@@ -6,10 +6,7 @@
 #include "../functions/EssentialFunctions.h"
 #include "../functions/ErrorFunctions.h"
 #include "../structs/Token.h"
-
-int crtDepth;
-Symbol* crtStruct;
-Symbol* crtFunc;
+#include "../functions/TokenFunctions.h"
 
 void initSymbols(Symbols* symbols)
 {
@@ -18,7 +15,7 @@ void initSymbols(Symbols* symbols)
 	symbols->after = NULL;
 }
 
-Symbol* addSymbol(Symbols* symbols, const char* name, int cls)
+Symbol* addSymbol(Symbols* symbols, const char* name, int cls, int crtDepth)
 {
 	Symbol* s;
 	if (symbols->end == symbols->after) { // create more room
@@ -31,7 +28,7 @@ Symbol* addSymbol(Symbols* symbols, const char* name, int cls)
 		symbols->after = symbols->begin + n;
 	}
 	SAFEALLOC(s, Symbol)
-		* symbols->end++ = s;
+	* symbols->end++ = s;
 	s->name = name;
 	s->cls = cls;
 	s->depth = crtDepth;
@@ -41,35 +38,51 @@ Symbol* addSymbol(Symbols* symbols, const char* name, int cls)
 Symbol* findSymbol(Symbols* symbols, const char* name) {
 	Symbol** p;
 
+	// If symbols list is empty
+	if (symbols->begin == symbols->end)
+		return NULL;
+
+	// If symbols list contains one element
+	if (symbols->end - symbols->begin == 1) {
+		if (strcmp((*symbols->begin)->name, name) == 0) {
+			return *symbols->begin;
+		}
+		return NULL;
+	}
+
 	// Iterate from end to the beginning of the list
-	for (p = symbols->end;p != symbols->begin;p--) {
+	for (p = symbols->end - 1;; p--) {
 		if (strcmp((*p)->name, name) == 0) {
 			return *p;
+		}
+		
+		if (p == symbols->begin) {
+			break;
 		}
 	}
 
 	return NULL;
 }
 
-void addVar(Token* crtTk, Token* tkName, Type* t)
+void addVar(Symbols symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth)
 {
 	Symbol* s;
 	if (crtStruct) {
 		if (findSymbol(&crtStruct->members, tkName->text))
-			symbolErr(crtTk, "symbol redefinition: %s", tkName->text);
-		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR);
+			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
+		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR, crtDepth);
 	}
 	else if (crtFunc) {
 		s = findSymbol(&symbols, tkName->text);
 		if (s && s->depth == crtDepth)
-			symbolErr(crtTk, "symbol redefinition: %s", tkName->text);
-		s = addSymbol(&symbols, tkName->text, CLS_VAR);
+			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
+		s = addSymbol(&symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_LOCAL;
 	}
 	else {
 		if (findSymbol(&symbols, tkName->text))
-			symbolErr(crtTk, "symbol redefinition: %s", tkName->text);
-		s = addSymbol(&symbols, tkName->text, CLS_VAR);
+			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
+		s = addSymbol(&symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_GLOBAL;
 	}
 	s->type = *t;

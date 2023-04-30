@@ -16,7 +16,3 @@ void lineErr(const char* fmt, int line)
 	fputc('\n', stderr);
 	exit(-1);
 }
-
-void symbolErr(Token* crtTk, const char* message, char* tokenName) {
-	fprintf(stderr, "Token Error: %s", tokenName);
-}
