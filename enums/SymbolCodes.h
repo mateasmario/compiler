@@ -1,0 +1,8 @@
+#ifndef _SYMBOLCODES_H_
+#define _SYMBOLCODES_H_
+
+enum { TB_INT, TB_DOUBLE, TB_CHAR, TB_STRUCT, TB_VOID };
+enum { CLS_VAR, CLS_FUNC, CLS_EXTFUNC, CLS_STRUCT };
+enum { MEM_GLOBAL, MEM_ARG, MEM_LOCAL };
+
+#endif

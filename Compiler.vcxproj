@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="functions\ErrorFunctions.cpp" />
     <ClCompile Include="functions\LexicalAnalyzerFunctions.cpp" />
+    <ClCompile Include="functions\SymbolFunctions.cpp" />
     <ClCompile Include="functions\TokenFunctions.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="functions\SyntacticAnalyzerFunctions.cpp" />
@@ -149,10 +150,14 @@
     <Text Include="code" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="enums\SymbolCodes.h" />
     <ClInclude Include="enums\TokenCodes.h" />
     <ClInclude Include="functions\ErrorFunctions.h" />
+    <ClInclude Include="functions\EssentialFunctions.h" />
     <ClInclude Include="functions\LexicalAnalyzerFunctions.h" />
+    <ClInclude Include="functions\SymbolFunctions.h" />
     <ClInclude Include="functions\TokenFunctions.h" />
+    <ClInclude Include="structs\Symbol.h" />
     <ClInclude Include="structs\Token.h" />
     <ClInclude Include="functions\SyntacticAnalyzerFunctions.h" />
   </ItemGroup>

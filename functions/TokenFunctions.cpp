@@ -8,8 +8,7 @@
 #include "ErrorFunctions.h"
 #include "LexicalAnalyzerFunctions.h"
 #include "../enums/TokenCodes.h"
-
-#define SAFEALLOC(var,Type) if((var=(Type*)malloc(sizeof(Type)))==NULL)err("not enough memory");
+#include "../functions/EssentialFunctions.h"
 
 Token* lastToken;
 Token* tokens;
