@@ -2,4 +2,7 @@ int y;
 
 int z() {
 	int y;
+	int z;
 }
+
+int z;

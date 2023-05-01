@@ -35,12 +35,15 @@ Symbol* addSymbol(Symbols* symbols, const char* name, int cls, int crtDepth)
 	return s;
 }
 
-Symbol* findSymbol(Symbols* symbols, const char* name) {
+Symbol* findSymbol(Symbols* symbols, const char* name, int crtDepth) {
 	Symbol** p;
 
 	// If symbols list is empty
-	if (symbols->begin == symbols->end)
+	if (symbols->begin == symbols->end) {
+		if (symbols->begin != NULL && strcmp((*symbols->begin)->name, name) == 0)
+			return (*symbols->begin);
 		return NULL;
+	}
 
 	// Iterate from end to the beginning of the list
 	for (p = symbols->end - 1;; p--) {
@@ -60,19 +63,19 @@ void addVar(Symbols *symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtS
 {
 	Symbol* s;
 	if (crtStruct) {
-		if (findSymbol(&crtStruct->members, tkName->text))
+		if (findSymbol(&crtStruct->members, tkName->text, crtDepth))
 			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
 		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR, crtDepth);
 	}
 	else if (crtFunc) {
-		s = findSymbol(symbols, tkName->text);
+		s = findSymbol(symbols, tkName->text, crtDepth);
 		if (s && s->depth == crtDepth)
 			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
 		s = addSymbol(symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_LOCAL;
 	}
 	else {
-		if (findSymbol(symbols, tkName->text))
+		if (findSymbol(symbols, tkName->text, crtDepth))
 			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
 		s = addSymbol(symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_GLOBAL;
@@ -80,13 +83,18 @@ void addVar(Symbols *symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtS
 	s->type = *t;
 }
 
-void deleteSymbolsAfter(Symbols* symbols, Symbol** start) {
-	Symbol** p;
+void deleteSymbolsAfter(Symbols* symbols, Symbol* start) {
+	Symbol** p = NULL;
 
-	/*for (p = symbols->end - 1; p != start; ) {
-		Symbol** temp = p;
-		p--;
-	}*/
-
-	*(symbols)->end = start[-1];
+	if (start != NULL) {
+		for (p = symbols->end - 1; ; p--) {
+			if (strcmp((*p)->name, start->name) == 0) {
+				break;
+			}
+		}
+		symbols->end = p;
+	}
+	else {
+		initSymbols(symbols);
+	}
 }

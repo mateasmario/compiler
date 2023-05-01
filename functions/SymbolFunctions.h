@@ -9,8 +9,8 @@
 
 void initSymbols(Symbols* symbols);
 Symbol* addSymbol(Symbols* symbols, const char* name, int cls, int crtDepth);
-Symbol* findSymbol(Symbols* symbols, const char* name);
+Symbol* findSymbol(Symbols* symbols, const char* name, int crtDepth);
 void addVar(Symbols *symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth);
-void deleteSymbolsAfter(Symbols* symbols, Symbol** start);
+void deleteSymbolsAfter(Symbols* symbols, Symbol* start);
 
 #endif

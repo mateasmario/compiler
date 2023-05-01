@@ -66,6 +66,9 @@ int unit() {
 		else if (declVar()) {
 
 		}
+		else if (stmCompound()) {
+
+		}
 		else {
 			break;
 		}
@@ -89,7 +92,7 @@ int declStruct() {
 			if (consume(LACC)) {
 
 				// Symbolic Table
-				if (findSymbol(&symbols, idToken->text)) {
+				if (findSymbol(&symbols, idToken->text, crtDepth)) {
 					tkerr(idToken, "symbol redefinition: %s", idToken->text);
 				}
 				crtStruct = addSymbol(&symbols, idToken->text, CLS_STRUCT, crtDepth);
@@ -142,13 +145,13 @@ int declVar() {
 			Token* idToken = consumedTk;
 			Type type;
 			arrayDecl(type);
-			addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
+			addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
 			while (1) {
 				if (consume(COMMA)) {
 					if (consume(ID)) {
 						arrayDecl(type);
 						idToken = consumedTk;
-						addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
+						addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
 					}
 				}
 				else {
@@ -190,7 +193,7 @@ int typeBase(Type& type) {
 		if (consume(ID)) {
 			Token* idToken = consumedTk;
 
-			Symbol* s = findSymbol(&symbols, idToken->text);
+			Symbol* s = findSymbol(&symbols, idToken->text, crtDepth);
 			if (s == NULL)tkerr(startTk, "undefined symbol: %s", idToken->text);
 			if (s->cls != CLS_STRUCT)tkerr(startTk, "%s is not a struct", idToken->text);
 			
@@ -255,77 +258,7 @@ int declFunc() {
 		if (consume(ID)) {
 			Token* idToken = consumedTk;
 			if (consume(LPAR)) {
-				if (findSymbol(&symbols, idToken->text))
-					tkerr(startTk, "symbol redefinition: %s", idToken->text);
-				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
-				initSymbols(&crtFunc->args);
-				crtFunc->type = type;
-				crtDepth++;
-
-				if (funcArg()) {
-					while (1) {
-						if (consume(COMMA)) {
-							if (funcArg()) {
-
-							}
-							else {
-								tkerr(tokens, "Expected function argument after ,");
-							}
-						}
-						else {
-							break;
-						}
-					}
-				}
-				if (consume(RPAR)) {
-					if (stmCompound()) {
-						return 1;
-					}
-					else {
-						tkerr(tokens, "Missing statement compound after function declaration.");
-					}
-				}
-				else {
-					tkerr(tokens, "Expected ) at the end of the function declaration.");
-				}
-			}
-			else {
-				Token* idToken = consumedTk;
-				Type type;
-				arrayDecl(type);
-				addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
-				arrayDecl(type);
-				while (1) {
-					if (consume(COMMA)) {
-						if (consume(ID)) {
-							idToken = consumedTk;
-							arrayDecl(type);
-							addVar(&symbols, startTk, idToken, &type, NULL, NULL, crtDepth);
-							arrayDecl(type);
-						}
-					}
-					else {
-						break;
-					}
-				}
-				if (consume(SEMICOLON)) {
-					return 1;
-				}
-				else {
-					tkerr(tokens, "Missing ; or syntax error in type base declaration.");
-				}
-			}
-		}
-		else {
-			tkerr(tokens, "Expected identifier after type base.");
-		}
-	}
-	if (consume(VOID)) {
-		type.typeBase = TB_VOID;
-		if (consume(ID)) {
-			Token* idToken = consumedTk;
-			if (consume(LPAR)) {
-				if (findSymbol(&symbols, idToken->text))
+				if (findSymbol(&symbols, idToken->text, crtDepth))
 					tkerr(startTk, "symbol redefinition: %s", idToken->text);
 				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
 				initSymbols(&crtFunc->args);
@@ -355,7 +288,80 @@ int declFunc() {
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
 					}
-					deleteSymbolsAfter(&symbols, &crtFunc);
+					deleteSymbolsAfter(&symbols, crtFunc);
+					crtFunc = NULL;
+				}
+				else {
+					tkerr(tokens, "Expected ) at the end of the function declaration.");
+				}
+			}
+			else {
+				Token* idToken = consumedTk;
+				Type type;
+				arrayDecl(type);
+				addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+				arrayDecl(type);
+				while (1) {
+					if (consume(COMMA)) {
+						if (consume(ID)) {
+							idToken = consumedTk;
+							arrayDecl(type);
+							addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+							arrayDecl(type);
+						}
+					}
+					else {
+						break;
+					}
+				}
+				if (consume(SEMICOLON)) {
+					return 1;
+				}
+				else {
+					tkerr(tokens, "Missing ; or syntax error in type base declaration.");
+				}
+			}
+		}
+		else {
+			tkerr(tokens, "Expected identifier after type base.");
+		}
+	}
+	if (consume(VOID)) {
+		type.typeBase = TB_VOID;
+		if (consume(ID)) {
+			Token* idToken = consumedTk;
+			if (consume(LPAR)) {
+				if (findSymbol(&symbols, idToken->text, crtDepth))
+					tkerr(startTk, "symbol redefinition: %s", idToken->text);
+				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
+				initSymbols(&crtFunc->args);
+				crtFunc->type = type;
+				crtDepth++;
+
+				if (funcArg()) {
+					while (1) {
+						if (consume(COMMA)) {
+							if (funcArg()) {
+
+							}
+							else {
+								tkerr(tokens, "Expected function argument after ,");
+							}
+						}
+						else {
+							break;
+						}
+					}
+				}
+				if (consume(RPAR)) {
+					crtDepth--;
+					if (stmCompound()) {
+						return 1;
+					}
+					else {
+						tkerr(tokens, "Missing statement compound after function declaration.");
+					}
+					deleteSymbolsAfter(&symbols, crtFunc);
 					crtFunc = NULL;
 				}
 				else {
@@ -531,10 +537,12 @@ int stm() {
 
 int stmCompound() {
 	Token* startTk = tokens;
-	Symbol* start;
+	Symbol* start = NULL;
 
 	if (symbols.end == symbols.begin) {
-		start = symbols.begin[0];
+		if (symbols.begin != NULL) {
+			start = symbols.begin[0];
+		}
 	}
 	else {
 		start = symbols.end[-1];
@@ -556,7 +564,7 @@ int stmCompound() {
 
 		if (consume(RACC)) {
 			crtDepth--;
-			deleteSymbolsAfter(&symbols, &start);
+			deleteSymbolsAfter(&symbols, start);
 			return 1;
 		}
 		else {
