@@ -98,3 +98,97 @@ void deleteSymbolsAfter(Symbols* symbols, Symbol* start) {
 		initSymbols(symbols);
 	}
 }
+
+Type createType(int typeBase, int nElements)
+{
+	Type t;
+	t.typeBase = typeBase;
+	t.nElements = nElements;
+	return t;
+}
+
+void cast(Type* dst, Type* src, Token* crtTk)
+{
+	if (src->nElements > -1) {
+		if (dst->nElements > -1) {
+			if (src->typeBase != dst->typeBase)
+				tkerr(crtTk, "an array cannot be converted to an array of another type");
+		}
+		else {
+			tkerr(crtTk, "an array cannot be converted to a non-array");
+		}
+	}
+	else {
+		if (dst->nElements > -1) {
+			tkerr(crtTk, "a non-array cannot be converted to an array");
+		}
+	}
+	switch (src->typeBase) {
+	case TB_CHAR:
+	case TB_INT:
+	case TB_DOUBLE: 
+		switch (dst->typeBase) {
+		case TB_CHAR:
+		case TB_INT:
+		case TB_DOUBLE:
+			return;
+		}
+	case TB_STRUCT:
+		if (dst->typeBase == TB_STRUCT) {
+			if (src->s != dst->s)
+				tkerr(crtTk, "a structure cannot be converted to another one");
+			return;
+		}
+	}
+	tkerr(crtTk, "incompatible types");
+}
+
+Symbol* addExtFunc(const char* name, Type type, Symbols* symbols, int crtDepth)
+{
+	Symbol* s = addSymbol(symbols, name, CLS_EXTFUNC, crtDepth);
+	s->type = type;
+	initSymbols(&s->args);
+	return s;
+}
+Symbol* addFuncArg(Symbol* func, const char* name, Type type, int crtDepth)
+{
+	Symbol* a = addSymbol(&func->args, name, CLS_VAR, crtDepth);
+	a->type = type;
+	return a;
+}
+
+void addExtFuncs(Symbols* symbols, int crtDepth) {
+	Symbol* s;
+	
+	// void put_s(char s[])
+	s = addExtFunc("put_s", createType(TB_VOID, -1), symbols, crtDepth);
+	addFuncArg(s, "s", createType(TB_CHAR, 0), crtDepth);
+
+	// void get_s(char s[]) 
+	s = addExtFunc("get_s", createType(TB_VOID, -1), symbols, crtDepth);
+	addFuncArg(s, "s", createType(TB_CHAR, 0), crtDepth);
+
+	// void put_i(int i) 
+	s = addExtFunc("put_i", createType(TB_VOID, -1), symbols, crtDepth);
+	addFuncArg(s, "i", createType(TB_INT, 0), crtDepth);
+
+	// int get_i() 
+	s = addExtFunc("get_i", createType(TB_INT, 1), symbols, crtDepth);
+
+	// void put_d(double d)
+	s = addExtFunc("put_d", createType(TB_VOID, -1), symbols, crtDepth);
+	addFuncArg(s, "d", createType(TB_DOUBLE, 0), crtDepth);
+
+	// double get_d() 
+	s = addExtFunc("put_d", createType(TB_DOUBLE, 1), symbols, crtDepth);
+
+	// void put_c(char c)
+	s = addExtFunc("put_c", createType(TB_VOID, -1), symbols, crtDepth);
+	addFuncArg(s, "c", createType(TB_CHAR, 0), crtDepth);
+
+	// char get_c()
+	s = addExtFunc("get_c", createType(TB_CHAR, 1), symbols, crtDepth);
+
+	// double seconds()
+	s = addExtFunc("seconds", createType(TB_DOUBLE, 1), symbols, crtDepth);
+}

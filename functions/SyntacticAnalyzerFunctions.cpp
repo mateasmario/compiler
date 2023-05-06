@@ -1246,6 +1246,10 @@ int exprPrimary() {
 void analyzeSyntax() {
 	Type type;
 
+	// Add predefined functions
+	addExtFuncs(&symbols, crtDepth);
+
+	// Analyze Syntax
 	while (tokens != NULL) {
 		if (unit()) {
 		}
