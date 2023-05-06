@@ -14,8 +14,10 @@ int declFunc();
 int funcArg();
 int stm();
 int stmCompound();
-int expr();
-int exprAssign();
+int expr(RetVal& rv);
+int exprAssign(RetVal& rv);
 void analyzeSyntax();
+int exprUnary(RetVal& rv);
+int exprPostfix(RetVal& rv);
 
 #endif

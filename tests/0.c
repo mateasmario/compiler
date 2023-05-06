@@ -1,3 +1,4 @@
+
 int sum()
 {
 	int	 i,v[5],s;

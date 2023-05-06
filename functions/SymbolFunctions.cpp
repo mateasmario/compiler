@@ -28,7 +28,7 @@ Symbol* addSymbol(Symbols* symbols, const char* name, int cls, int crtDepth)
 		(symbols)->after = (symbols)->begin + n;
 	}
 	SAFEALLOC(s, Symbol)
-	*symbols->end++ = s;
+		* symbols->end++ = s;
 	s->name = name;
 	s->cls = cls;
 	s->depth = crtDepth;
@@ -50,7 +50,7 @@ Symbol* findSymbol(Symbols* symbols, const char* name, int crtDepth) {
 		if (strcmp((*p)->name, name) == 0) {
 			return *p;
 		}
-		
+
 		if (p == symbols->begin) {
 			break;
 		}
@@ -59,18 +59,18 @@ Symbol* findSymbol(Symbols* symbols, const char* name, int crtDepth) {
 	return NULL;
 }
 
-void addVar(Symbols *symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth)
+void addVar(Symbols* symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth)
 {
 	Symbol* s;
 	if (crtStruct) {
 		if (findSymbol(&crtStruct->members, tkName->text, crtDepth))
-			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
+			tkerr(crtTk, "Symbol redefinition: %s.", tkName->text);
 		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR, crtDepth);
 	}
 	else if (crtFunc) {
 		s = findSymbol(symbols, tkName->text, crtDepth);
 		if (s && s->depth == crtDepth)
-			tkerr(crtTk, "symbol redefinition: %s", tkName->text);
+			tkerr(crtTk, "Symbol redefinition: %s.", tkName->text);
 		s = addSymbol(symbols, tkName->text, CLS_VAR, crtDepth);
 		s->mem = MEM_LOCAL;
 	}
@@ -84,15 +84,19 @@ void addVar(Symbols *symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtS
 }
 
 void deleteSymbolsAfter(Symbols* symbols, Symbol* start) {
-	Symbol** p = NULL;
+	Symbol** p = symbols->end-1;
+
 
 	if (start != NULL) {
-		for (p = symbols->end - 1; ; p--) {
+		while (strcmp((*p)->name, start->name) != 0) {
 			if (strcmp((*p)->name, start->name) == 0) {
 				break;
 			}
+			
+			p--;
 		}
-		symbols->end = p;
+			
+		symbols->end[0] = p[1];
 	}
 	else {
 		initSymbols(symbols);
@@ -136,11 +140,11 @@ void cast(Type* dst, Type* src, Token* crtTk)
 	case TB_STRUCT:
 		if (dst->typeBase == TB_STRUCT) {
 			if (src->s != dst->s)
-				tkerr(crtTk, "a structure cannot be converted to another one");
+				tkerr(crtTk, "A structure cannot be converted to another one.");
 			return;
 		}
 	}
-	tkerr(crtTk, "incompatible types");
+	tkerr(crtTk, "Incompatible types.");
 }
 
 Symbol* addExtFunc(const char* name, Type type, Symbols* symbols, int crtDepth)
