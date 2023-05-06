@@ -192,3 +192,23 @@ void addExtFuncs(Symbols* symbols, int crtDepth) {
 	// double seconds()
 	s = addExtFunc("seconds", createType(TB_DOUBLE, 1), symbols, crtDepth);
 }
+
+Type getArithType(Type* s1, Type* s2) {
+	if (s1->typeBase == s2->typeBase) {
+		return createType(s1->typeBase, -1);
+	}
+	else {
+		if (s1->typeBase == TB_CHAR && s2->typeBase == TB_INT
+			|| s1->typeBase == TB_INT && s2->typeBase == TB_CHAR) { // CHAR + INT => INT
+			return createType(TB_INT, -1);
+		}
+		else if (s1->typeBase == TB_INT && s2->typeBase == TB_DOUBLE
+			|| s1->typeBase == TB_DOUBLE && s2->typeBase == TB_INT) { // INT + DOUBLE => DOUBLE
+			return createType(TB_DOUBLE, -1);
+		}
+		else if (s1->typeBase == TB_CHAR && s2->typeBase == TB_DOUBLE
+			|| s1->typeBase == TB_DOUBLE && s2->typeBase == TB_CHAR) { // CHAR + DOUBLE => DOUBLE
+			return createType(TB_DOUBLE, -1);
+		}
+	}
+}
