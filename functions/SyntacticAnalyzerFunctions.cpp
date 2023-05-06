@@ -94,11 +94,10 @@ int declStruct() {
 			if (consume(LACC)) {
 
 				// Symbolic Table
-				if (findSymbol(&symbols, idToken->text, crtDepth)) {
+				if (findSymbol(symbols, idToken->text, crtDepth)) {
 					tkerr(idToken, "Symbol redefinition: %s.", idToken->text);
 				}
-				crtStruct = addSymbol(&symbols, idToken->text, CLS_STRUCT, crtDepth);
-				initSymbols(&crtStruct->members);
+				crtStruct = addSymbol(symbols, idToken->text, CLS_STRUCT, crtDepth);
 
 				while (1) {
 					if (declVar()) {
@@ -146,13 +145,13 @@ int declVar() {
 		if (consume(ID)) {
 			Token* idToken = consumedTk;
 			arrayDecl(type);
-			addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+			addVar(symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
 			while (1) {
 				if (consume(COMMA)) {
 					if (consume(ID)) {
 						idToken = consumedTk;
 						arrayDecl(type);
-						addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+						addVar(symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
 					}
 				}
 				else {
@@ -194,7 +193,7 @@ int typeBase(Type& type) {
 		if (consume(ID)) {
 			Token* idToken = consumedTk;
 
-			Symbol* s = findSymbol(&symbols, idToken->text, crtDepth);
+			Symbol* s = findSymbol(symbols, idToken->text, crtDepth);
 			if (s == NULL)tkerr(startTk, "undefined symbol: %s", idToken->text);
 			if (s->cls != CLS_STRUCT)tkerr(startTk, "%s is not a struct", idToken->text);
 			
@@ -271,10 +270,9 @@ int declFunc() {
 		if (consume(ID)) {
 			Token* idToken = consumedTk;
 			if (consume(LPAR)) {
-				if (findSymbol(&symbols, idToken->text, crtDepth))
+				if (findSymbol(symbols, idToken->text, crtDepth))
 					tkerr(startTk, "Symbol redefinition: %s.", idToken->text);
-				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
-				initSymbols(&crtFunc->args);
+				crtFunc = addSymbol(symbols, idToken->text, CLS_FUNC, crtDepth);
 				crtFunc->type = type;
 				crtDepth++;
 
@@ -301,7 +299,7 @@ int declFunc() {
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
 					}
-					deleteSymbolsAfter(&symbols, crtFunc);
+					deleteSymbolsAfter(symbols, crtFunc);
 					crtFunc = NULL;
 				}
 				else {
@@ -311,14 +309,14 @@ int declFunc() {
 			else {
 				Token* idToken = consumedTk;
 				arrayDecl(type);
-				addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+				addVar(symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
 				arrayDecl(type);
 				while (1) {
 					if (consume(COMMA)) {
 						if (consume(ID)) {
 							idToken = consumedTk;
 							arrayDecl(type);
-							addVar(&symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+							addVar(symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
 							arrayDecl(type);
 						}
 					}
@@ -343,10 +341,9 @@ int declFunc() {
 		if (consume(ID)) {
 			Token* idToken = consumedTk;
 			if (consume(LPAR)) {
-				if (findSymbol(&symbols, idToken->text, crtDepth))
+				if (findSymbol(symbols, idToken->text, crtDepth))
 					tkerr(startTk, "Symbol redefinition: %s.", idToken->text);
-				crtFunc = addSymbol(&symbols, idToken->text, CLS_FUNC, crtDepth);
-				initSymbols(&crtFunc->args);
+				crtFunc = addSymbol(symbols, idToken->text, CLS_FUNC, crtDepth);
 				crtFunc->type = type;
 				crtDepth++;
 
@@ -373,7 +370,7 @@ int declFunc() {
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
 					}
-					deleteSymbolsAfter(&symbols, crtFunc);
+					deleteSymbolsAfter(symbols, crtFunc);
 					crtFunc = NULL;
 				}
 				else {
@@ -403,10 +400,10 @@ int funcArg() {
 			Token* tokenId = consumedTk;
 			arrayDecl(type);
 
-			Symbol* s = addSymbol(&symbols, tokenId->text, CLS_VAR, crtDepth);
+			Symbol* s = addSymbol(symbols, tokenId->text, CLS_VAR, crtDepth);
 			s->mem = MEM_ARG;
 			s->type = type;
-			s = addSymbol(&crtFunc->args, tokenId->text, CLS_VAR, crtDepth);
+			s = addSymbol(crtFunc->args, tokenId->text, CLS_VAR, crtDepth);
 			s->mem = MEM_ARG;
 			s->type = type;
 
@@ -563,16 +560,7 @@ int stm() {
 
 int stmCompound() {
 	Token* startTk = tokens;
-	Symbol* start = NULL;
-
-	if (symbols.end == symbols.begin) {
-		if (symbols.begin != NULL) {
-			start = symbols.begin[0];
-		}
-	}
-	else {
-		start = symbols.end[-1];
-	}
+	Symbol* start = symbols.end()[-1];
 
 	if (consume(LACC)) {
 		crtDepth++;
@@ -590,7 +578,7 @@ int stmCompound() {
 
 		if (consume(RACC)) {
 			crtDepth--;
-			deleteSymbolsAfter(&symbols, start);
+			deleteSymbolsAfter(symbols, start);
 			return 1;
 		}
 		else {
@@ -1318,7 +1306,7 @@ int exprPostfix1(RetVal &rv) {
 			Token* tokenId = consumedTk;
 
 			Symbol* sStruct = rv.type.s;
-			Symbol* sMember = findSymbol(&sStruct->members, tokenId->text, crtDepth);
+			Symbol* sMember = findSymbol(sStruct->members, tokenId->text, crtDepth);
 			if (!sMember)
 				tkerr(tokens, "Struct %s does not have a member %s.", sStruct->name, tokenId->text);
 			rv.type = sMember->type;
@@ -1356,7 +1344,7 @@ int exprPrimary(RetVal &rv) {
 		Token* idToken = consumedTk;
 		RetVal arg;
 
-		Symbol* s = findSymbol(&symbols, idToken->text, crtDepth);
+		Symbol* s = findSymbol(symbols, idToken->text, crtDepth);
 		if (!s) {
 			tkerr(tokens, "Undefined symbol %s.", idToken->text);
 		}
@@ -1365,24 +1353,24 @@ int exprPrimary(RetVal &rv) {
 		rv.isLVal = 1;
 
 		if (consume(LPAR)) {
-			Symbol** crtDefArg = s->args.begin;
+			Symbol* crtDefArg = *s->args.begin();
 			if (s->cls != CLS_FUNC && s->cls != CLS_EXTFUNC)
 				tkerr(tokens, "Call of the non-function %s.", idToken->text);
 
 			if (expr(arg)) {
-				if (crtDefArg == s->args.end) {
+				if (crtDefArg == *s->args.end()) {
 					tkerr(tokens, "Too many arguments in call.");
 				}
-				cast(&(*crtDefArg)->type, &arg.type, tokens);
+				cast(&crtDefArg->type, &arg.type, tokens);
 				crtDefArg++;
 
 				while (1) {
 					if (consume(COMMA)) {
 						if (expr(arg)) {
-							if (crtDefArg == s->args.end) {
+							if (crtDefArg == *s->args.end()) {
 								tkerr(tokens, "Too many arguments in call.");
 							}
-							cast(&(*crtDefArg)->type, &arg.type, tokens);
+							cast(&crtDefArg->type, &arg.type, tokens);
 							crtDefArg++;
 						}
 						else {
@@ -1394,7 +1382,7 @@ int exprPrimary(RetVal &rv) {
 					}
 				}
 				if (consume(RPAR)) {
-					if (crtDefArg != s->args.end) {
+					if (crtDefArg != *s->args.end()) {
 						tkerr(tokens, "Too few arguments in call.");
 					}
 
@@ -1484,7 +1472,7 @@ void analyzeSyntax() {
 	Type type;
 
 	// Add predefined functions
-	addExtFuncs(&symbols, crtDepth);
+	addExtFuncs(symbols, crtDepth);
 
 	// Analyze Syntax
 	while (tokens != NULL) {

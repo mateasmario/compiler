@@ -8,64 +8,41 @@
 #include "../structs/Token.h"
 #include "../functions/TokenFunctions.h"
 
-void initSymbols(Symbols* symbols)
-{
-	symbols->begin = NULL;
-	symbols->end = NULL;
-	symbols->after = NULL;
-}
-
-Symbol* addSymbol(Symbols* symbols, const char* name, int cls, int crtDepth)
+Symbol* addSymbol(Symbols &symbols, const char* name, int cls, int crtDepth)
 {
 	Symbol* s;
-	if ((symbols)->end == (symbols)->after) { // create more room
-		int count = (symbols)->after - (symbols)->begin;
-		int n = count * 2; // double the room
-		if (n == 0)n = 1; // needed for the initial case
-		(symbols)->begin = (Symbol**)realloc((symbols)->begin, n * sizeof(Symbol*));
-		if ((symbols)->begin == NULL)err("not enough memory");
-		(symbols)->end = (symbols)->begin + count;
-		(symbols)->after = (symbols)->begin + n;
-	}
 	SAFEALLOC(s, Symbol)
-		* symbols->end++ = s;
+
 	s->name = name;
 	s->cls = cls;
 	s->depth = crtDepth;
+
+	if (symbols.size() == 0)
+		new (&(symbols)) std::vector<Symbol*>;
+
+	symbols.push_back(s);
+
 	return s;
 }
 
-Symbol* findSymbol(Symbols* symbols, const char* name, int crtDepth) {
-	Symbol** p;
+Symbol* findSymbol(Symbols symbols, const char* name, int crtDepth) {
 
-	// If symbols list is empty
-	if (symbols->begin == symbols->end) {
-		if (symbols->begin != NULL && strcmp((*symbols->begin)->name, name) == 0)
-			return (*symbols->begin);
-		return NULL;
-	}
-
-	// Iterate from end to the beginning of the list
-	for (p = symbols->end - 1;; p--) {
-		if (strcmp((*p)->name, name) == 0) {
-			return *p;
-		}
-
-		if (p == symbols->begin) {
-			break;
-		}
+	for (int i = symbols.size() - 1; i >= 0; i--)
+	{
+		if (strcmp(symbols[i]->name, name) == 0)
+			return symbols[i];
 	}
 
 	return NULL;
 }
 
-void addVar(Symbols* symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtStruct, Symbol* crtFunc, int crtDepth)
+void addVar(Symbols &symbols, Token* crtTk, Token* tkName, Type* t, Symbol *crtStruct, Symbol* crtFunc, int crtDepth)
 {
 	Symbol* s;
 	if (crtStruct) {
-		if (findSymbol(&crtStruct->members, tkName->text, crtDepth))
+		if (findSymbol(crtStruct->members, tkName->text, crtDepth))
 			tkerr(crtTk, "Symbol redefinition: %s.", tkName->text);
-		s = addSymbol(&crtStruct->members, tkName->text, CLS_VAR, crtDepth);
+		s = addSymbol(crtStruct->members, tkName->text, CLS_VAR, crtDepth);
 	}
 	else if (crtFunc) {
 		s = findSymbol(symbols, tkName->text, crtDepth);
@@ -83,23 +60,12 @@ void addVar(Symbols* symbols, Token* crtTk, Token* tkName, Type* t, Symbol* crtS
 	s->type = *t;
 }
 
-void deleteSymbolsAfter(Symbols* symbols, Symbol* start) {
-	Symbol** p = symbols->end-1;
+void deleteSymbolsAfter(Symbols &symbols, Symbol* start) {
+	int currIndex = symbols.size() - 1;
 
-
-	if (start != NULL) {
-		while (strcmp((*p)->name, start->name) != 0) {
-			if (strcmp((*p)->name, start->name) == 0) {
-				break;
-			}
-			
-			p--;
-		}
-			
-		symbols->end[0] = p[1];
-	}
-	else {
-		initSymbols(symbols);
+	while (currIndex >= 0 && strcmp(symbols[currIndex]->name, start->name) != 0) {
+		symbols.erase(symbols.begin() + currIndex);
+		currIndex--;
 	}
 }
 
@@ -147,21 +113,20 @@ void cast(Type* dst, Type* src, Token* crtTk)
 	tkerr(crtTk, "Incompatible types.");
 }
 
-Symbol* addExtFunc(const char* name, Type type, Symbols* symbols, int crtDepth)
+Symbol* addExtFunc(const char* name, Type type, Symbols &symbols, int crtDepth)
 {
 	Symbol* s = addSymbol(symbols, name, CLS_EXTFUNC, crtDepth);
 	s->type = type;
-	initSymbols(&s->args);
 	return s;
 }
 Symbol* addFuncArg(Symbol* func, const char* name, Type type, int crtDepth)
 {
-	Symbol* a = addSymbol(&func->args, name, CLS_VAR, crtDepth);
+	Symbol* a = addSymbol(func->args, name, CLS_VAR, crtDepth);
 	a->type = type;
 	return a;
 }
 
-void addExtFuncs(Symbols* symbols, int crtDepth) {
+void addExtFuncs(Symbols &symbols, int crtDepth) {
 	Symbol* s;
 	
 	// void put_s(char s[])

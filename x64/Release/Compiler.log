@@ -1,0 +1,12 @@
+﻿  ErrorFunctions.cpp
+  LexicalAnalyzerFunctions.cpp
+  SymbolFunctions.cpp
+E:\CTI\III\CT\Compiler\structs\Symbol.h(29,1): warning C4624: '_Symbol': destructor was implicitly defined as deleted
+E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(27,2): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(61,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  TokenFunctions.cpp
+  Main.cpp
+E:\CTI\III\CT\Compiler\structs\Symbol.h(29,1): warning C4624: '_Symbol': destructor was implicitly defined as deleted
+E:\CTI\III\CT\Compiler\Main.cpp(24,15): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  SyntacticAnalyzerFunctions.cpp
+E:\CTI\III\CT\Compiler\structs\Symbol.h(29,1): warning C4624: '_Symbol': destructor was implicitly defined as deleted

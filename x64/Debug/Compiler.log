@@ -1,10 +1,3 @@
-﻿  Main.cpp
-E:\CTI\III\CT\Compiler\structs\Symbol.h(21,2): warning C4091: 'typedef ': ignored on left of '_Symbols' when no variable is declared
-  SymbolFunctions.cpp
-E:\CTI\III\CT\Compiler\structs\Symbol.h(21,2): warning C4091: 'typedef ': ignored on left of '_Symbols' when no variable is declared
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(22,13): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-  SyntacticAnalyzerFunctions.cpp
-E:\CTI\III\CT\Compiler\structs\Symbol.h(21,2): warning C4091: 'typedef ': ignored on left of '_Symbols' when no variable is declared
-  Generating Code...
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(218): warning C4715: 'getArithType': not all control paths return a value
+﻿  SyntacticAnalyzerFunctions.cpp
+E:\CTI\III\CT\Compiler\structs\Symbol.h(29,1): warning C4624: '_Symbol': destructor was implicitly defined as deleted
   Compiler.vcxproj -> E:\CTI\III\CT\Compiler\x64\Debug\Compiler.exe
