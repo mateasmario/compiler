@@ -59,9 +59,11 @@ int unit() {
 	Token* startTk = tokens;
 
 	while (1) {
+		Token* currPos = tokens;
+
 		if (int result = declStruct()) {
 			if (result == -1) {
-				tokens = startTk;
+				tokens = currPos;
 				return 0;
 			}
 		}
@@ -112,6 +114,7 @@ int declStruct() {
 
 				if (consume(RACC)) {
 					if (consume(SEMICOLON)) {
+						crtStruct = NULL;
 						return 1;
 					}
 					else {
@@ -122,8 +125,34 @@ int declStruct() {
 					tkerr(tokens, "Missing } when ending struct body.");
 				}
 			}
-			else if (consume(ID)) {
-				return -1; // a struct typebase is found instead of a struct declaration
+			else if (consume(ID)) { // if typebase for variable declaration, not struct declaration
+				Type type;
+
+				Symbol* s = findSymbol(symbols, idToken->text, crtDepth);
+				if (s == NULL)tkerr(startTk, "undefined symbol: %s", idToken->text);
+				if (s->cls != CLS_STRUCT)tkerr(startTk, "%s is not a struct", idToken->text);
+
+				type.typeBase = TB_STRUCT;
+				type.s = s;
+
+				idToken = consumedTk;
+
+				arrayDecl(type);
+				addVar(symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+				while (1) {
+					if (consume(COMMA)) {
+						if (consume(ID)) {
+							idToken = consumedTk;
+							arrayDecl(type);
+							addVar(symbols, startTk, idToken, &type, crtStruct, crtFunc, crtDepth);
+						}
+					}
+					else {
+						break;
+					}
+				}
+
+				return 1;
 			}
 			else {
 				tkerr(tokens, "Missing { at the beggining of the struct body.");
@@ -631,42 +660,6 @@ int exprAssign(RetVal &rv) {
 
 	tokens = startTk;
 	return 0;
-
-	/*
-	if (exprUnary(rv)) {
-		if (consumedTk->code >= 0 && consumedTk->code <= 4) {
-			assignToken = consumedTk;
-		}
-		if (consume(ASSIGN)) {
-			if (exprAssign(rve)) {
-				if (!rv.isLVal) {
-					tkerr(tokens, "Cannot assign to a non-lval.");
-				}
-				if (rv.type.nElements > -1 || rve.type.nElements > -1) {
-					tkerr(tokens, "The arrays cannot be assigned.");
-				}
-				cast(&rv.type, &rve.type, tokens);
-				rv.isCtVal = rv.isLVal = 0;
-			}
-			return 1;
-		}
-		else {
-			if (lastArgToken != NULL) {
-				tokens = lastArgToken;
-				lastArgToken = NULL;
-			}
-			else if (lastFuncToken != NULL) {
-				tokens = lastFuncToken;
-				lastFuncToken = NULL;
-			}
-			else if (assignToken != NULL) {
-				tokens = assignToken;
-			}
-			if (exprOr(rv)) {
-				return 1;
-			}
-		}
-	}*/
 }
 
 // exprOr ::= exprOr OR exprAnd | exprAnd
