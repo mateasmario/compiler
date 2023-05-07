@@ -139,27 +139,27 @@ void addExtFuncs(Symbols &symbols, int crtDepth) {
 
 	// void put_i(int i) 
 	s = addExtFunc("put_i", createType(TB_VOID, -1), symbols, crtDepth);
-	addFuncArg(s, "i", createType(TB_INT, 0), crtDepth);
+	addFuncArg(s, "i", createType(TB_INT, -1), crtDepth);
 
 	// int get_i() 
-	s = addExtFunc("get_i", createType(TB_INT, 1), symbols, crtDepth);
+	s = addExtFunc("get_i", createType(TB_INT, -1), symbols, crtDepth);
 
 	// void put_d(double d)
 	s = addExtFunc("put_d", createType(TB_VOID, -1), symbols, crtDepth);
-	addFuncArg(s, "d", createType(TB_DOUBLE, 0), crtDepth);
+	addFuncArg(s, "d", createType(TB_DOUBLE, -1), crtDepth);
 
 	// double get_d() 
-	s = addExtFunc("put_d", createType(TB_DOUBLE, 1), symbols, crtDepth);
+	s = addExtFunc("get_d", createType(TB_DOUBLE, -1), symbols, crtDepth);
 
 	// void put_c(char c)
 	s = addExtFunc("put_c", createType(TB_VOID, -1), symbols, crtDepth);
-	addFuncArg(s, "c", createType(TB_CHAR, 0), crtDepth);
+	addFuncArg(s, "c", createType(TB_CHAR, -1), crtDepth);
 
 	// char get_c()
-	s = addExtFunc("get_c", createType(TB_CHAR, 1), symbols, crtDepth);
+	s = addExtFunc("get_c", createType(TB_CHAR, -1), symbols, crtDepth);
 
 	// double seconds()
-	s = addExtFunc("seconds", createType(TB_DOUBLE, 1), symbols, crtDepth);
+	s = addExtFunc("seconds", createType(TB_DOUBLE, -1), symbols, crtDepth);
 }
 
 Type getArithType(Type* s1, Type* s2) {

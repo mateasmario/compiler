@@ -9,7 +9,9 @@ int crtDepth;
 Symbol *crtStruct;
 Symbol *crtFunc;
 
-Token* prevTk;
+Token* assignToken;
+Token* lastFuncToken;
+Token* lastArgToken;
 
 Type* outType;
 
@@ -216,6 +218,8 @@ int arrayDecl(Type& type) {
 
 	// For now, do not return the real number of elements
 	type.nElements = -1;
+
+	Token* arrayId = consumedTk;
 
 	if (consume(LBRACKET)) {
 		RetVal rv;
@@ -427,6 +431,7 @@ int stm() {
 	}
 	if (consume(IF)) {
 		if (consume(LPAR)) {
+			lastFuncToken = NULL;
 			if (expr(rv)) {
 				if (rv.type.typeBase == TB_STRUCT) {
 					tkerr(tokens, "A structure cannot be logically tested.");
@@ -461,6 +466,7 @@ int stm() {
 	}
 	if (consume(WHILE)) {
 		if (consume(LPAR)) {
+			lastFuncToken = NULL;
 			if (expr(rv)) {
 				if (rv.type.typeBase == TB_STRUCT) {
 					tkerr(tokens, "A structure cannot be logically tested.");
@@ -487,6 +493,7 @@ int stm() {
 	}
 	if (consume(FOR)) {
 		if (consume(LPAR)) {
+			lastFuncToken = NULL;
 			expr(rv1);
 
 			if (consume(SEMICOLON)) {
@@ -593,7 +600,6 @@ int stmCompound() {
 int expr(RetVal &rv) {
 	Token* startTk = tokens;
 
-	prevTk = NULL;
 	if (exprAssign(rv)) {
 		return 1;
 	}
@@ -605,9 +611,8 @@ int expr(RetVal &rv) {
 int exprAssign(RetVal &rv) {
 	Token* startTk = tokens;
 	RetVal rve;
-
-	if (exprUnary(rv)) {
-		prevTk = consumedTk;
+	
+	if (exprOr(rv)) {
 		if (consume(ASSIGN)) {
 			if (exprAssign(rve)) {
 				if (!rv.isLVal) {
@@ -618,31 +623,50 @@ int exprAssign(RetVal &rv) {
 				}
 				cast(&rv.type, &rve.type, tokens);
 				rv.isCtVal = rv.isLVal = 0;
-				}
-				return 1;
 			}
-			else {
-				if (prevTk == NULL)
-					return 1;
-				else {
-					tokens = prevTk;
-
-					if (exprOr(rv)) {
-						return 1;
-					}
-					else {
-						tkerr(tokens, "Missing assignment expression at right side of assignment operator.");
-					}
-				}
-			}
+			return 1;
 		}
-		
-	if (exprOr(rv)) {
 		return 1;
 	}
 
 	tokens = startTk;
 	return 0;
+
+	/*
+	if (exprUnary(rv)) {
+		if (consumedTk->code >= 0 && consumedTk->code <= 4) {
+			assignToken = consumedTk;
+		}
+		if (consume(ASSIGN)) {
+			if (exprAssign(rve)) {
+				if (!rv.isLVal) {
+					tkerr(tokens, "Cannot assign to a non-lval.");
+				}
+				if (rv.type.nElements > -1 || rve.type.nElements > -1) {
+					tkerr(tokens, "The arrays cannot be assigned.");
+				}
+				cast(&rv.type, &rve.type, tokens);
+				rv.isCtVal = rv.isLVal = 0;
+			}
+			return 1;
+		}
+		else {
+			if (lastArgToken != NULL) {
+				tokens = lastArgToken;
+				lastArgToken = NULL;
+			}
+			else if (lastFuncToken != NULL) {
+				tokens = lastFuncToken;
+				lastFuncToken = NULL;
+			}
+			else if (assignToken != NULL) {
+				tokens = assignToken;
+			}
+			if (exprOr(rv)) {
+				return 1;
+			}
+		}
+	}*/
 }
 
 // exprOr ::= exprOr OR exprAnd | exprAnd
@@ -1341,6 +1365,8 @@ int exprPrimary(RetVal &rv) {
 	Type type;
 
 	if (consume(ID)) {
+		assignToken = consumedTk;
+		
 		Token* idToken = consumedTk;
 		RetVal arg;
 
@@ -1353,24 +1379,39 @@ int exprPrimary(RetVal &rv) {
 		rv.isLVal = 1;
 
 		if (consume(LPAR)) {
-			Symbol* crtDefArg = *s->args.begin();
 			if (s->cls != CLS_FUNC && s->cls != CLS_EXTFUNC)
 				tkerr(tokens, "Call of the non-function %s.", idToken->text);
 
+			Token* ct = tokens;
+
+			if (consume(ID) || consume(CT_INT) || consume(CT_CHAR) || consume(CT_REAL) || consume(CT_STRING)) {
+				lastArgToken = consumedTk;
+			}
+
+			tokens = ct;
+
 			if (expr(arg)) {
-				if (crtDefArg == *s->args.end()) {
+				
+				if (s->args.size() == 0) {
 					tkerr(tokens, "Too many arguments in call.");
 				}
-				cast(&crtDefArg->type, &arg.type, tokens);
+
+				Symbols::iterator crtDefArg = s->args.begin();
+				
+				Symbol* crtSymbol = *crtDefArg;
+				cast(&crtSymbol->type, &arg.type, tokens);
 				crtDefArg++;
 
 				while (1) {
 					if (consume(COMMA)) {
 						if (expr(arg)) {
-							if (crtDefArg == *s->args.end()) {
+							lastArgToken = consumedTk;
+
+							if (crtDefArg == s->args.end()) {
 								tkerr(tokens, "Too many arguments in call.");
 							}
-							cast(&crtDefArg->type, &arg.type, tokens);
+							Symbol* crtSymbol = *crtDefArg;
+							cast(&crtSymbol->type, &arg.type, tokens);
 							crtDefArg++;
 						}
 						else {
@@ -1382,17 +1423,30 @@ int exprPrimary(RetVal &rv) {
 					}
 				}
 				if (consume(RPAR)) {
-					if (crtDefArg != *s->args.end()) {
+					lastFuncToken = idToken;
+
+					if (crtDefArg != s->args.end()) {
 						tkerr(tokens, "Too few arguments in call.");
 					}
 
 					rv.type = s->type;
 					rv.isCtVal = rv.isLVal = 0;
 				
+					lastArgToken = NULL;
+
 					return 1;
 				}
 			}
 			if (consume(RPAR)) {
+				lastFuncToken = idToken;
+
+				// Function has more arguments, but 0 were given
+				if (s->args.size() != 0) {
+					tkerr(tokens, "Too few arguments in call.");
+				}
+
+				lastArgToken = NULL;
+
 				return 1;
 			}
 			else {
