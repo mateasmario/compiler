@@ -42,13 +42,22 @@ void get_c() {
 	pushc(c);
 }
 
-
 void put_s() {
-
+	char curr;
+	do {
+		curr = popc();
+		printf("%c", curr);
+	} while (curr != 0);
+	printf("\n");
 }
 
 void get_s() {
-
+	char* s;
+	scanf("%s", &s);
+	for (int i = strlen(s) - 1; i>=0; i--) {
+		pushc(s[i]);
+	}
+	pushc(0);
 }
 
 void seconds() {
