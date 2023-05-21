@@ -36,6 +36,9 @@
     <ClCompile Include="functions\VmFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="functions\CodeGenerationFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="code">
@@ -83,6 +86,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="structs\Vm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CodeGenerationFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

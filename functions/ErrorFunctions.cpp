@@ -22,3 +22,9 @@ void vmErr(int opcode) {
 	fputc('\n', stderr);
 	exit(-1);
 }
+
+void tbErr(int typebase) {
+	fprintf(stderr, "invalid typeBase: %d", typebase);
+	fputc('\n', stderr);
+	exit(-1);
+}

@@ -10,6 +10,7 @@
 #include "functions/ErrorFunctions.h"
 #include "functions/TokenFunctions.h"
 #include "functions/SyntacticAnalyzerFunctions.h"
+#include "functions/VmFunctions.h"
 
 int line = 1;
 
@@ -38,6 +39,9 @@ int main(int argc, char** argv) {
 
 	// Syntactical analyzer
 	analyzeSyntax();
+
+	// Run Code Generation
+	run(instructions);
 
 	return 0;
 }

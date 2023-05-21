@@ -1,17 +1,5 @@
-struct e {
-	double y;
-};
-
-
-struct e a;
-
-int j;
-j = a.y;
-
-put_c(j);
-
-int ja;
-ja = get_c();
-
-int x;
-x;
+int main() {
+	int x;
+	x = 3 + 5;
+	put_i(x);
+}

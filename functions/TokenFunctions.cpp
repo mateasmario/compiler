@@ -17,7 +17,13 @@ void tkerr(const Token* tk, const char* fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
-	fprintf(stderr, "Error on line %d: ", tk->line);
+
+	if (tk != NULL) {
+		fprintf(stderr, "Error on line %d: ", tk->line);
+	}
+	else {
+		fprintf(stderr, "Error: ");
+	}
 	vfprintf(stderr, fmt, va);
 	fputc('\n', stderr);
 	va_end(va);

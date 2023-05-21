@@ -1,16 +1,51 @@
-﻿  SymbolFunctions.cpp
+﻿  VmFunctions.cpp
 E:\CTI\III\CT\Compiler\structs\Symbol.h(33,1): warning C4624: '_Symbol': destructor was implicitly defined as deleted
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(31,8): warning C4477: 'scanf' : format string '%f' requires an argument of type 'float *', but variadic argument 1 has type 'double *'
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(31,8): message : consider using '%lf' in the format string
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(41,8): warning C4477: 'scanf' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'char *'
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(41,8): message : consider using '%hhd' in the format string
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(56,8): warning C4477: 'scanf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'char **'
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(57,2): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(67,9): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 1 has type 'time_t'
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(67,9): message : consider using '%lld' in the format string
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(67,9): message : consider using '%Id' in the format string
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(67,9): message : consider using '%I64d' in the format string
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(90,2): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(124,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-E:\CTI\III\CT\Compiler\functions\SymbolFunctions.cpp(244): warning C4715: 'getArithType': not all control paths return a value
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(153,10): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type '__int64'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(153,10): message : consider using '%lld' in the format string
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(153,10): message : consider using '%Id' in the format string
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(153,10): message : consider using '%I64d' in the format string
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(159,16): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(179,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(179,11): warning C4313: 'printf': '%d' in format string conflicts with argument 1 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(179,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(179,11): warning C4313: 'printf': '%d' in format string conflicts with argument 2 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(234,10): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(248,10): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(255,15): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(297,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(297,11): warning C4313: 'printf': '%d' in format string conflicts with argument 1 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(297,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(297,11): warning C4313: 'printf': '%d' in format string conflicts with argument 2 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(391,11): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 2 has type 'double'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(419,11): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 2 has type 'double'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(485,16): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(505,12): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(511,13): warning C4244: 'argument': conversion from 'double' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(516,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'double'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(516,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'double'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(517,13): warning C4244: 'argument': conversion from 'double' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(525,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(525,11): warning C4313: 'printf': '%d' in format string conflicts with argument 1 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(525,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(525,11): warning C4313: 'printf': '%d' in format string conflicts with argument 2 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(552,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(552,11): warning C4313: 'printf': '%d' in format string conflicts with argument 1 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(564,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 2 has type 'int'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(585,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(585,11): warning C4313: 'printf': '%d' in format string conflicts with argument 1 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(585,11): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(585,11): warning C4313: 'printf': '%d' in format string conflicts with argument 2 of type 'char *'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(625,11): warning C4477: 'printf' : format string '%p' requires an argument of type 'void *', but variadic argument 1 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(625,11): warning C4313: 'printf': '%p' in format string conflicts with argument 1 of type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(626,10): warning C4244: 'argument': conversion from 'long' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(631,11): warning C4477: 'printf' : format string '%p' requires an argument of type 'void *', but variadic argument 1 has type 'double'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(637,11): warning C4477: 'printf' : format string '%p' requires an argument of type 'void *', but variadic argument 1 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(637,11): warning C4313: 'printf': '%p' in format string conflicts with argument 1 of type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(669,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 1 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(669,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 2 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(669,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 3 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(677,16): warning C4244: 'argument': conversion from 'double' to 'char', possible loss of data
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(683,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 1 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(683,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 2 has type 'long'
+E:\CTI\III\CT\Compiler\functions\VmFunctions.cpp(683,11): warning C4477: 'printf' : format string '%g' requires an argument of type 'double', but variadic argument 3 has type 'long'
   Compiler.vcxproj -> E:\CTI\III\CT\Compiler\x64\Debug\Compiler.exe

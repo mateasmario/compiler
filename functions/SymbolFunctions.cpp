@@ -10,6 +10,7 @@
 #include "../functions/TokenFunctions.h"
 #include "../functions/VmFunctions.h"
 #include "../enums/VmEnums.h"
+#include "../functions/CodeGenerationFunctions.h"
 
 void put_i()
 {
@@ -118,6 +119,13 @@ void addVar(Symbols &symbols, Token* crtTk, Token* tkName, Type* t, Symbol *crtS
 		s->mem = MEM_GLOBAL;
 	}
 	s->type = *t;
+	if (crtStruct || crtFunc) {
+		s->offset = offset;
+	}
+	else {
+		s->addr = allocGlobal(typeFullSize(&s->type));
+	}
+	offset += typeFullSize(&s->type);
 }
 
 void deleteSymbolsAfter(Symbols &symbols, Symbol* start) {
@@ -248,7 +256,7 @@ Symbol* requireSymbol(Symbols symbols, const char* name, int crtDepth) {
 	Symbol* s = findSymbol(symbols, name, crtDepth);
 
 	if (s == NULL) {
-		tkerr(NULL, "Symbol not found.");
+		tkerr(NULL, "Symbol not found: %s", name);
 	}
 
 	return s;

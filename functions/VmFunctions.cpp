@@ -8,8 +8,10 @@
 #include "../functions/EssentialFunctions.h"
 #include "../enums/VmEnums.h"
 #include "../structs/Symbol.h"
+#include "../functions/VmFunctions.h"
 
-Instr* instructions, * lastInstruction; // double linked list
+Instr* instructions, * lastInstruction;
+Instr* crtLoopEnd;
 
 void pushd(double d)
 {
@@ -114,13 +116,18 @@ Instr* addInstrII(int opcode, long int val1, long int val2) {
 	return instr;
 }
 
+Instr* appendInstr(Instr* i) {
+	insertInstrAfter(lastInstruction, i);
+	return i;
+}
+
 void deleteInstructionsAfter(Instr* start) {
-	Instr* curr = start->next;
+	Instr* curr = NULL;
+	curr = start->next;
 
 	while (curr != NULL) {
 		Instr* temp = curr;
 		curr = curr->next;
-		free(temp);
 	}
 
 	start->next = NULL;
@@ -390,6 +397,10 @@ void run(Instr* IP)
 			printf("JF\t%p\t(%ld)\n", IP->args[0].addr, iVal1);
 			// void* cast error, did a cast to (Instr*)
 			IP = (iVal1 == 0) ? (Instr*)IP->args[0].addr : IP->next;
+			break;
+		case O_JMP:
+			aVal1 = (char*)IP->args[0].addr;
+			IP = (Instr*)aVal1;
 			break;
 		case O_JT_A:
 			iVal1 = popc();

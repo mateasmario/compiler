@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="functions\CodeGenerationFunctions.cpp" />
     <ClCompile Include="functions\ErrorFunctions.cpp" />
     <ClCompile Include="functions\LexicalAnalyzerFunctions.cpp" />
     <ClCompile Include="functions\SymbolFunctions.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="enums\SymbolCodes.h" />
     <ClInclude Include="enums\TokenCodes.h" />
     <ClInclude Include="enums\VmEnums.h" />
+    <ClInclude Include="functions\CodeGenerationFunctions.h" />
     <ClInclude Include="functions\ErrorFunctions.h" />
     <ClInclude Include="functions\EssentialFunctions.h" />
     <ClInclude Include="functions\LexicalAnalyzerFunctions.h" />
