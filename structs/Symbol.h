@@ -26,6 +26,10 @@ struct _Symbol {
 		std::vector<Symbol*> args; // used only of functions
 		std::vector<Symbol*> members; // used only for structs
 	};
+	union {
+		void* addr; // vm: the memory address for global symbols
+		int offset; // vm: the stack offset for local symbols
+	};
 };
 
 typedef union {

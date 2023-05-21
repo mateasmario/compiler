@@ -1543,4 +1543,6 @@ void analyzeSyntax() {
 
 		}
 	}
+
+	vmTest(symbols, 0);
 }

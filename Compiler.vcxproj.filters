@@ -33,6 +33,9 @@
     <ClCompile Include="functions\SymbolFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="functions\VmFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="code">
@@ -68,6 +71,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="functions\EssentialFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="definitions\VmDefinitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VmFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="enums\VmEnums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="structs\Vm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

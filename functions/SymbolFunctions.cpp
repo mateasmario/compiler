@@ -1,12 +1,63 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "../structs/Symbol.h"
 #include "../functions/EssentialFunctions.h"
 #include "../functions/ErrorFunctions.h"
 #include "../structs/Token.h"
 #include "../functions/TokenFunctions.h"
+#include "../functions/VmFunctions.h"
+#include "../enums/VmEnums.h"
+
+void put_i()
+{
+	printf("#%ld\n", popi());
+}
+
+void get_i() {
+	int i;
+	scanf("%d", &i);
+	pushi(i);
+}
+
+void put_d() {
+	printf("#%f\n", popd());
+}
+
+void get_d() {
+	double d;
+	scanf("%f", &d);
+	pushd(d);
+}
+
+void put_c() {
+	printf("#%c\n", popc());
+}
+
+void get_c() {
+	char c;
+	scanf("%d", &c);
+	pushc(c);
+}
+
+
+void put_s() {
+
+}
+
+void get_s() {
+
+}
+
+void seconds() {
+	time_t seconds;
+
+	seconds = time(NULL);
+	printf("%ld\n", seconds);
+}
+
 
 Symbol* addSymbol(Symbols &symbols, const char* name, int cls, int crtDepth)
 {
@@ -113,10 +164,11 @@ void cast(Type* dst, Type* src, Token* crtTk)
 	tkerr(crtTk, "Incompatible types.");
 }
 
-Symbol* addExtFunc(const char* name, Type type, Symbols &symbols, int crtDepth)
+Symbol* addExtFunc(const char* name, Type type, Symbols &symbols, int crtDepth, void* addr)
 {
 	Symbol* s = addSymbol(symbols, name, CLS_EXTFUNC, crtDepth);
 	s->type = type;
+	s->addr = addr;
 	return s;
 }
 Symbol* addFuncArg(Symbol* func, const char* name, Type type, int crtDepth)
@@ -130,36 +182,36 @@ void addExtFuncs(Symbols &symbols, int crtDepth) {
 	Symbol* s;
 	
 	// void put_s(char s[])
-	s = addExtFunc("put_s", createType(TB_VOID, -1), symbols, crtDepth);
+	s = addExtFunc("put_s", createType(TB_VOID, -1), symbols, crtDepth, put_s);
 	addFuncArg(s, "s", createType(TB_CHAR, 0), crtDepth);
 
 	// void get_s(char s[]) 
-	s = addExtFunc("get_s", createType(TB_VOID, -1), symbols, crtDepth);
+	s = addExtFunc("get_s", createType(TB_VOID, -1), symbols, crtDepth, get_s);
 	addFuncArg(s, "s", createType(TB_CHAR, 0), crtDepth);
 
 	// void put_i(int i) 
-	s = addExtFunc("put_i", createType(TB_VOID, -1), symbols, crtDepth);
+	s = addExtFunc("put_i", createType(TB_VOID, -1), symbols, crtDepth, put_i);
 	addFuncArg(s, "i", createType(TB_INT, -1), crtDepth);
 
 	// int get_i() 
-	s = addExtFunc("get_i", createType(TB_INT, -1), symbols, crtDepth);
+	s = addExtFunc("get_i", createType(TB_INT, -1), symbols, crtDepth, get_i);
 
 	// void put_d(double d)
-	s = addExtFunc("put_d", createType(TB_VOID, -1), symbols, crtDepth);
+	s = addExtFunc("put_d", createType(TB_VOID, -1), symbols, crtDepth, put_d);
 	addFuncArg(s, "d", createType(TB_DOUBLE, -1), crtDepth);
 
 	// double get_d() 
-	s = addExtFunc("get_d", createType(TB_DOUBLE, -1), symbols, crtDepth);
+	s = addExtFunc("get_d", createType(TB_DOUBLE, -1), symbols, crtDepth, get_d);
 
 	// void put_c(char c)
-	s = addExtFunc("put_c", createType(TB_VOID, -1), symbols, crtDepth);
+	s = addExtFunc("put_c", createType(TB_VOID, -1), symbols, crtDepth, put_c);
 	addFuncArg(s, "c", createType(TB_CHAR, -1), crtDepth);
 
 	// char get_c()
-	s = addExtFunc("get_c", createType(TB_CHAR, -1), symbols, crtDepth);
+	s = addExtFunc("get_c", createType(TB_CHAR, -1), symbols, crtDepth, get_c);
 
 	// double seconds()
-	s = addExtFunc("seconds", createType(TB_DOUBLE, -1), symbols, crtDepth);
+	s = addExtFunc("seconds", createType(TB_DOUBLE, -1), symbols, crtDepth, seconds);
 }
 
 Type getArithType(Type* s1, Type* s2) {
@@ -180,4 +232,37 @@ Type getArithType(Type* s1, Type* s2) {
 			return createType(TB_DOUBLE, -1);
 		}
 	}
+}
+
+Symbol* requireSymbol(Symbols symbols, const char* name, int crtDepth) {
+
+	Symbol* s = findSymbol(symbols, name, crtDepth);
+
+	if (s == NULL) {
+		tkerr(NULL, "Symbol not found.");
+	}
+
+	return s;
+}
+
+void vmTest(Symbols &symbols, int crtDepth)
+{
+	Instr* L1;
+	int* v = (int*)allocGlobal(sizeof(long int));
+	addInstrA(O_PUSHCT_A, v);
+	addInstrI(O_PUSHCT_I, 3);
+	addInstrI(O_STORE, sizeof(long int));
+	L1 = addInstrA(O_PUSHCT_A, v);
+	addInstrI(O_LOAD, sizeof(long int));
+	addInstrA(O_CALLEXT, requireSymbol(symbols, "put_i", crtDepth)->addr);
+	addInstrA(O_PUSHCT_A, v);
+	addInstrA(O_PUSHCT_A, v);
+	addInstrI(O_LOAD, sizeof(long int));
+	addInstrI(O_PUSHCT_I, 1);
+	addInstr(O_SUB_I);
+	addInstrI(O_STORE, sizeof(long int));
+	addInstrA(O_PUSHCT_A, v);
+	addInstrI(O_LOAD, sizeof(long int));
+	addInstrA(O_JT_I, L1);
+	addInstr(O_HALT);
 }

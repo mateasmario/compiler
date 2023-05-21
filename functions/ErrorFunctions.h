@@ -5,5 +5,6 @@
 
 void err(const char* fmt);
 void lineErr(const char* fmt, int line);
+void vmErr(int opcode);
 
 #endif

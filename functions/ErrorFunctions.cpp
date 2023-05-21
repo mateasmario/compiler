@@ -16,3 +16,9 @@ void lineErr(const char* fmt, int line)
 	fputc('\n', stderr);
 	exit(-1);
 }
+
+void vmErr(int opcode) {
+	fprintf(stderr, "Invalid opcode: %d", opcode);
+	fputc('\n', stderr);
+	exit(-1);
+}

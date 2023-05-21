@@ -12,3 +12,6 @@ put_c(j);
 
 int ja;
 ja = get_c();
+
+int x;
+x;

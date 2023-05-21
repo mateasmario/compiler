@@ -143,6 +143,7 @@
     <ClCompile Include="functions\LexicalAnalyzerFunctions.cpp" />
     <ClCompile Include="functions\SymbolFunctions.cpp" />
     <ClCompile Include="functions\TokenFunctions.cpp" />
+    <ClCompile Include="functions\VmFunctions.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="functions\SyntacticAnalyzerFunctions.cpp" />
   </ItemGroup>
@@ -150,16 +151,20 @@
     <Text Include="code" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="definitions\VmDefinitions.h" />
     <ClInclude Include="enums\SymbolCodes.h" />
     <ClInclude Include="enums\TokenCodes.h" />
+    <ClInclude Include="enums\VmEnums.h" />
     <ClInclude Include="functions\ErrorFunctions.h" />
     <ClInclude Include="functions\EssentialFunctions.h" />
     <ClInclude Include="functions\LexicalAnalyzerFunctions.h" />
     <ClInclude Include="functions\SymbolFunctions.h" />
     <ClInclude Include="functions\TokenFunctions.h" />
+    <ClInclude Include="functions\VmFunctions.h" />
     <ClInclude Include="structs\Symbol.h" />
     <ClInclude Include="structs\Token.h" />
     <ClInclude Include="functions\SyntacticAnalyzerFunctions.h" />
+    <ClInclude Include="structs\Vm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
