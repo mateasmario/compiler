@@ -131,6 +131,7 @@ void deleteInstructionsAfter(Instr* start) {
 	}
 
 	start->next = NULL;
+	lastInstruction = start;
 }
 
 void* allocGlobal(int size)
@@ -151,6 +152,10 @@ void run(Instr* IP)
 	stackAfter = stack + STACK_SIZE;
 	while (1) {
 		printf("%p/%d\t", IP, SP - stack);
+
+		if (IP == NULL)
+			break;
+
 		switch (IP->opcode) {
 		case O_ADD_C:
 			iVal1 = popc();
@@ -251,21 +256,21 @@ void run(Instr* IP)
 		case O_DIV_C:
 			iVal1 = popc();
 			iVal2 = popc();
-			printf("DIV_C\t(%c-%c -> %c)\n", iVal1, iVal2, iVal1 / iVal2);
+			printf("DIV_C\t(%c-%c -> %c)\n", iVal2, iVal1, iVal2 / iVal1);
 			pushc(iVal1/iVal2);
 			IP = IP->next;
 			break;
 		case O_DIV_D:
 			dVal1 = popd();
 			dVal2 = popd();
-			printf("DIV_D\t(%g-%g -> %g)\n", dVal1, dVal2, dVal1 / dVal2);
+			printf("DIV_D\t(%g-%g -> %g)\n", dVal2, dVal1, dVal2 / dVal1);
 			pushd(dVal1/dVal2);
 			IP = IP->next;
 			break;
 		case O_DIV_I:
 			iVal1 = popi();
 			iVal2 = popi();
-			printf("DIV_I\t(%ld-%ld -> %ld)\n", iVal1, iVal2, iVal1 / iVal2);
+			printf("DIV_I\t(%ld-%ld -> %ld)\n", iVal2, iVal1, iVal2 / iVal1);
 			pushi(iVal1 / iVal2);
 			IP = IP->next;
 			break;
@@ -518,6 +523,7 @@ void run(Instr* IP)
 			IP = IP->next;
 			break;
 		case O_NOP:
+			IP = IP->next;
 			break;
 		case O_NOTEQ_A:
 			aVal1 = (char*)popc();
@@ -664,8 +670,8 @@ void run(Instr* IP)
 			IP = IP->next;
 			break;
 		case O_SUB_C:
-			dVal1 = popc();
-			dVal2 = popc();
+			iVal1 = popc();
+			iVal2 = popc();
 			printf("SUB_C\t(%g-%g -> %g)\n", iVal2, iVal1, iVal2 - iVal1);
 			pushd(iVal2 - iVal1);
 			IP = IP->next;
@@ -678,9 +684,9 @@ void run(Instr* IP)
 			IP = IP->next;
 			break;
 		case O_SUB_I:
-			dVal1 = popi();
-			dVal2 = popi();
-			printf("SUB_C\t(%g-%g -> %g)\n", iVal2, iVal1, iVal2 - iVal1);
+			iVal1 = popi();
+			iVal2 = popi();
+			printf("SUB_I\t(%g-%g -> %g)\n", iVal2, iVal1, iVal2 - iVal1);
 			pushi(iVal2 - iVal1);
 			IP = IP->next;
 			break;

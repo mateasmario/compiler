@@ -357,15 +357,15 @@ int declFunc() {
 					offset = 0;
 
 					if (stmCompound()) {
+						((Instr*)crtFunc->addr)->args[0].i = offset;  // setup the ENTER argument 
+						if (crtFunc->type.typeBase == TB_VOID) {
+							addInstrII(O_RET, sizeArgs, 0);
+						}
+
 						return 1;
 					}
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
-					}
-
-					((Instr*)crtFunc->addr)->args[0].i = offset;  // setup the ENTER argument 
-					if (crtFunc->type.typeBase == TB_VOID) {
-						addInstrII(O_RET, sizeArgs, 0);
 					}
 
 					deleteSymbolsAfter(symbols, crtFunc);
@@ -803,10 +803,10 @@ int exprAssign(RetVal &rv) {
 			}
 			
 		}
-		deleteInstructionsAfter(oldLastInstr);
 		return 1;
 	}
 
+	deleteInstructionsAfter(oldLastInstr);
 	tokens = startTk;
 	return 0;
 }
@@ -1392,6 +1392,7 @@ int exprAdd1(RetVal &rv) {
 	Type t1, t2;
 
 	if (consume(ADD)) {
+		Token* consumedSymbolTk = consumedTk;
 		i1 = getRVal(&rv);
 		t1 = rv.type;
 
@@ -1408,7 +1409,7 @@ int exprAdd1(RetVal &rv) {
 			i2 = getRVal(&rve);t2 = rve.type;
 			addCastInstr(i1, &t1, &rv.type);
 			addCastInstr(i2, &t2, &rv.type);
-			if (consumedTk->code == ADD) {
+			if (consumedSymbolTk->code == ADD) {
 				switch (rv.type.typeBase) {
 				case TB_INT:addInstr(O_ADD_I);break;
 				case TB_DOUBLE:addInstr(O_ADD_D);break;
@@ -1525,6 +1526,7 @@ int exprMul1(RetVal &rv) {
 	Type t1, t2;
 
 	if (consume(MUL)) {
+		Token* consumedSymbolTk = consumedTk;
 		i1 = getRVal(&rv);
 		t1 = rv.type;
 
@@ -1541,7 +1543,7 @@ int exprMul1(RetVal &rv) {
 			i2 = getRVal(&rve);t2 = rve.type;
 			addCastInstr(i1, &t1, &rv.type);
 			addCastInstr(i2, &t2, &rv.type);
-			if (consumedTk->code == MUL) {
+			if (consumedSymbolTk->code == MUL) {
 				switch (rv.type.typeBase) {
 				case TB_INT:addInstr(O_MUL_I);break;
 				case TB_DOUBLE:addInstr(O_MUL_D);break;
