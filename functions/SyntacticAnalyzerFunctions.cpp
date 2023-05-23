@@ -357,19 +357,20 @@ int declFunc() {
 					offset = 0;
 
 					if (stmCompound()) {
+						deleteSymbolsAfter(symbols, crtFunc);
+
 						((Instr*)crtFunc->addr)->args[0].i = offset;  // setup the ENTER argument 
 						if (crtFunc->type.typeBase == TB_VOID) {
 							addInstrII(O_RET, sizeArgs, 0);
 						}
+
+						crtFunc = NULL;
 
 						return 1;
 					}
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
 					}
-
-					deleteSymbolsAfter(symbols, crtFunc);
-					crtFunc = NULL;
 				}
 				else {
 					tkerr(tokens, "Expected ) at the end of the function declaration.");
@@ -435,6 +436,9 @@ int declFunc() {
 				if (consume(RPAR)) {
 					crtDepth--;
 
+					crtFunc->addr = addInstr(O_ENTER);
+					sizeArgs = offset;
+
 					//update args offsets for correct FP indexing
 					for (Symbol* ps : symbols) {
 						if (ps->mem == MEM_ARG) {
@@ -445,19 +449,20 @@ int declFunc() {
 					offset = 0;
 
 					if (stmCompound()) {
+						deleteSymbolsAfter(symbols, crtFunc);
+
+						((Instr*)crtFunc->addr)->args[0].i = offset;  // setup the ENTER argument 
+						if (crtFunc->type.typeBase == TB_VOID) {
+							addInstrII(O_RET, sizeArgs, 0);
+						}
+
+						crtFunc = NULL;
+
 						return 1;
 					}
 					else {
 						tkerr(tokens, "Missing statement compound after function declaration.");
 					}
-					deleteSymbolsAfter(symbols, crtFunc);
-
-					((Instr*)crtFunc->addr)->args[0].i = offset;  // setup the ENTER argument 
-					if (crtFunc->type.typeBase == TB_VOID) {
-						addInstrII(O_RET, sizeArgs, 0);
-					}
-
-					crtFunc = NULL;
 				}
 				else {
 					tkerr(tokens, "Expected ) at the end of the function declaration.");
