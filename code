@@ -1,5 +1,6 @@
 int main() {
-	int x;
-	x = (3 == 4);
-	put_i(x);
+	int i;
+	for (i = 1; i < 3; i=i+1) {
+		put_i(i);
+	}
 }

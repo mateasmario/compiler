@@ -983,8 +983,11 @@ int exprEq1(RetVal &rv) {
 	Token* startTk = tokens;
 	RetVal rve;
 	Instr* i1, * i2;Type t, t1, t2;
+	Token* consumedSymbolTk;
 
 	if (consume(EQUAL)) {
+		consumedSymbolTk = consumedTk;
+
 		i1 = rv.type.nElements < 0 ? getRVal(&rv) : lastInstruction;
 		t1 = rv.type;
 
@@ -992,34 +995,34 @@ int exprEq1(RetVal &rv) {
 			/* use (rv, rve); return rv */
 			if (rv.type.typeBase == TB_STRUCT || rve.type.typeBase == TB_STRUCT) {
 				tkerr(tokens, "A structure cannot be compared.");
-
-				if (rv.type.nElements >= 0) {      // vectors
-					addInstr(consumedTk->code == EQUAL ? O_EQ_A : O_NOTEQ_A);
-				}
-				else {  // non-vectors
-					i2 = getRVal(&rve);t2 = rve.type;
-					t = getArithType(&t1, &t2);
-					addCastInstr(i1, &t1, &t);
-					addCastInstr(i2, &t2, &t);
-					if (consumedTk->code == EQUAL) {
-						switch (t.typeBase) {
-						case TB_INT:addInstr(O_EQ_I);break;
-						case TB_DOUBLE:addInstr(O_EQ_D);break;
-						case TB_CHAR:addInstr(O_EQ_C);break;
-						}
-					}
-					else {
-						switch (t.typeBase) {
-						case TB_INT:addInstr(O_NOTEQ_I);break;
-						case TB_DOUBLE:addInstr(O_NOTEQ_D);break;
-						case TB_CHAR:addInstr(O_NOTEQ_C);break;
-						}
-					}
-				}
-
-				rv.type = createType(TB_INT, -1);
-				rv.isCtVal = rv.isLVal = 0;
 			}
+
+			if (rv.type.nElements >= 0) {      // vectors
+				addInstr(consumedSymbolTk->code == EQUAL ? O_EQ_A : O_NOTEQ_A);
+			}
+			else {  // non-vectors
+				i2 = getRVal(&rve);t2 = rve.type;
+				t = getArithType(&t1, &t2);
+				addCastInstr(i1, &t1, &t);
+				addCastInstr(i2, &t2, &t);
+				if (consumedSymbolTk->code == EQUAL) {
+					switch (t.typeBase) {
+					case TB_INT:addInstr(O_EQ_I);break;
+					case TB_DOUBLE:addInstr(O_EQ_D);break;
+					case TB_CHAR:addInstr(O_EQ_C);break;
+					}
+				}
+				else {
+					switch (t.typeBase) {
+					case TB_INT:addInstr(O_NOTEQ_I);break;
+					case TB_DOUBLE:addInstr(O_NOTEQ_D);break;
+					case TB_CHAR:addInstr(O_NOTEQ_C);break;
+					}
+				}
+			}
+
+			rv.type = createType(TB_INT, -1);
+			rv.isCtVal = rv.isLVal = 0;
 
 			if (exprEq1(rv)) {
 				return 1;
@@ -1039,10 +1042,44 @@ int exprEq1(RetVal &rv) {
 		}
 	}
 	else if (consume(NOTEQ)) {
+		consumedSymbolTk = consumedTk;
+
 		i1 = rv.type.nElements < 0 ? getRVal(&rv) : lastInstruction;
 		t1 = rv.type;
 
-		if (exprRel(rv)) {
+		if (exprRel(rve)) {
+			/* use (rv, rve); return rv */
+			if (rv.type.typeBase == TB_STRUCT || rve.type.typeBase == TB_STRUCT) {
+				tkerr(tokens, "A structure cannot be compared.");
+			}
+
+			if (rv.type.nElements >= 0) {      // vectors
+				addInstr(consumedSymbolTk->code == EQUAL ? O_EQ_A : O_NOTEQ_A);
+			}
+			else {  // non-vectors
+				i2 = getRVal(&rve);t2 = rve.type;
+				t = getArithType(&t1, &t2);
+				addCastInstr(i1, &t1, &t);
+				addCastInstr(i2, &t2, &t);
+				if (consumedSymbolTk->code == EQUAL) {
+					switch (t.typeBase) {
+					case TB_INT:addInstr(O_EQ_I);break;
+					case TB_DOUBLE:addInstr(O_EQ_D);break;
+					case TB_CHAR:addInstr(O_EQ_C);break;
+					}
+				}
+				else {
+					switch (t.typeBase) {
+					case TB_INT:addInstr(O_NOTEQ_I);break;
+					case TB_DOUBLE:addInstr(O_NOTEQ_D);break;
+					case TB_CHAR:addInstr(O_NOTEQ_C);break;
+					}
+				}
+			}
+
+			rv.type = createType(TB_INT, -1);
+			rv.isCtVal = rv.isLVal = 0;
+
 			if (exprEq1(rv)) {
 				return 1;
 			}
@@ -1090,8 +1127,11 @@ int exprRel1(RetVal &rv) {
 	Token* startTk = tokens;
 	RetVal rve;
 	Instr* i1, * i2;Type t, t1, t2;
+	Token* consumedSymbolTk;
 
 	if (consume(LESS)) {
+		consumedSymbolTk = consumedTk;
+
 		i1 = getRVal(&rv);
 		t1 = rv.type;
 
@@ -1102,45 +1142,46 @@ int exprRel1(RetVal &rv) {
 			}
 			if (rv.type.typeBase == TB_STRUCT || rve.type.typeBase == TB_STRUCT) {
 				tkerr(tokens, "A structure cannot be compared.");
-
-				i2 = getRVal(&rve);t2 = rve.type;
-				t = getArithType(&t1, &t2);
-				addCastInstr(i1, &t1, &t);
-				addCastInstr(i2, &t2, &t);
-				switch (consumedTk->code) {
-				case LESS:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESS_I);break;
-					case TB_DOUBLE:addInstr(O_LESS_D);break;
-					case TB_CHAR:addInstr(O_LESS_C);break;
-					}
-					break;
-				case LESSEQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESSEQ_I);break;
-					case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
-					case TB_CHAR:addInstr(O_LESSEQ_C);break;
-					}
-					break;
-				case GREATER:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATER_I);break;
-					case TB_DOUBLE:addInstr(O_GREATER_D);break;
-					case TB_CHAR:addInstr(O_GREATER_C);break;
-					}
-					break;
-				case GREATEREQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATEREQ_I);break;
-					case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
-					case TB_CHAR:addInstr(O_GREATEREQ_C);break;
-					}
-					break;
-				}
-
-				rv.type = createType(TB_INT, -1);
-				rv.isCtVal = rv.isLVal = 0;
 			}
+
+			i2 = getRVal(&rve);t2 = rve.type;
+			t = getArithType(&t1, &t2);
+			addCastInstr(i1, &t1, &t);
+			addCastInstr(i2, &t2, &t);
+
+			switch (consumedSymbolTk->code) {
+			case LESS:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESS_I);break;
+				case TB_DOUBLE:addInstr(O_LESS_D);break;
+				case TB_CHAR:addInstr(O_LESS_C);break;
+				}
+				break;
+			case LESSEQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESSEQ_I);break;
+				case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
+				case TB_CHAR:addInstr(O_LESSEQ_C);break;
+				}
+				break;
+			case GREATER:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATER_I);break;
+				case TB_DOUBLE:addInstr(O_GREATER_D);break;
+				case TB_CHAR:addInstr(O_GREATER_C);break;
+				}
+				break;
+			case GREATEREQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATEREQ_I);break;
+				case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
+				case TB_CHAR:addInstr(O_GREATEREQ_C);break;
+				}
+				break;
+			}
+
+			rv.type = createType(TB_INT, -1);
+			rv.isCtVal = rv.isLVal = 0;
 
 			if (exprRel1(rv)) {
 				return 1;
@@ -1163,6 +1204,8 @@ int exprRel1(RetVal &rv) {
 		i1 = getRVal(&rv);
 		t1 = rv.type;
 
+		consumedSymbolTk = consumedTk;
+
 		if (exprAdd(rve)) {
 			/* use (rv, rve); return rv */
 			if (rv.type.nElements > -1 || rve.type.nElements > -1) {
@@ -1170,45 +1213,47 @@ int exprRel1(RetVal &rv) {
 			}
 			if (rv.type.typeBase == TB_STRUCT || rve.type.typeBase == TB_STRUCT) {
 				tkerr(tokens, "A structure cannot be compared.");
-
-				i2 = getRVal(&rve);t2 = rve.type;
-				t = getArithType(&t1, &t2);
-				addCastInstr(i1, &t1, &t);
-				addCastInstr(i2, &t2, &t);
-				switch (consumedTk->code) {
-				case LESS:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESS_I);break;
-					case TB_DOUBLE:addInstr(O_LESS_D);break;
-					case TB_CHAR:addInstr(O_LESS_C);break;
-					}
-					break;
-				case LESSEQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESSEQ_I);break;
-					case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
-					case TB_CHAR:addInstr(O_LESSEQ_C);break;
-					}
-					break;
-				case GREATER:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATER_I);break;
-					case TB_DOUBLE:addInstr(O_GREATER_D);break;
-					case TB_CHAR:addInstr(O_GREATER_C);break;
-					}
-					break;
-				case GREATEREQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATEREQ_I);break;
-					case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
-					case TB_CHAR:addInstr(O_GREATEREQ_C);break;
-					}
-					break;
-				}
-
-				rv.type = createType(TB_INT, -1);
-				rv.isCtVal = rv.isLVal = 0;
 			}
+
+			i2 = getRVal(&rve);t2 = rve.type;
+			t = getArithType(&t1, &t2);
+			addCastInstr(i1, &t1, &t);
+			addCastInstr(i2, &t2, &t);
+
+			switch (consumedSymbolTk->code) {
+			case LESS:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESS_I);break;
+				case TB_DOUBLE:addInstr(O_LESS_D);break;
+				case TB_CHAR:addInstr(O_LESS_C);break;
+				}
+				break;
+			case LESSEQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESSEQ_I);break;
+				case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
+				case TB_CHAR:addInstr(O_LESSEQ_C);break;
+				}
+				break;
+			case GREATER:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATER_I);break;
+				case TB_DOUBLE:addInstr(O_GREATER_D);break;
+				case TB_CHAR:addInstr(O_GREATER_C);break;
+				}
+				break;
+			case GREATEREQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATEREQ_I);break;
+				case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
+				case TB_CHAR:addInstr(O_GREATEREQ_C);break;
+				}
+				break;
+			}
+
+			rv.type = createType(TB_INT, -1);
+			rv.isCtVal = rv.isLVal = 0;
+			
 			if (exprRel1(rv)) {
 				return 1;
 			}
@@ -1230,6 +1275,8 @@ int exprRel1(RetVal &rv) {
 		i1 = getRVal(&rv);
 		t1 = rv.type;
 
+		consumedSymbolTk = consumedTk;
+
 		if (exprAdd(rve)) {
 			/* use (rv, rve); return rv */
 			if (rv.type.nElements > -1 || rve.type.nElements > -1) {
@@ -1237,45 +1284,53 @@ int exprRel1(RetVal &rv) {
 			}
 			if (rv.type.typeBase == TB_STRUCT || rve.type.typeBase == TB_STRUCT) {
 				tkerr(tokens, "A structure cannot be compared.");
-
-				i2 = getRVal(&rve);t2 = rve.type;
-				t = getArithType(&t1, &t2);
-				addCastInstr(i1, &t1, &t);
-				addCastInstr(i2, &t2, &t);
-				switch (consumedTk->code) {
-				case LESS:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESS_I);break;
-					case TB_DOUBLE:addInstr(O_LESS_D);break;
-					case TB_CHAR:addInstr(O_LESS_C);break;
-					}
-					break;
-				case LESSEQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESSEQ_I);break;
-					case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
-					case TB_CHAR:addInstr(O_LESSEQ_C);break;
-					}
-					break;
-				case GREATER:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATER_I);break;
-					case TB_DOUBLE:addInstr(O_GREATER_D);break;
-					case TB_CHAR:addInstr(O_GREATER_C);break;
-					}
-					break;
-				case GREATEREQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATEREQ_I);break;
-					case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
-					case TB_CHAR:addInstr(O_GREATEREQ_C);break;
-					}
-					break;
-				}
-
-				rv.type = createType(TB_INT, -1);
-				rv.isCtVal = rv.isLVal = 0;
 			}
+
+			i2 = getRVal(&rve);t2 = rve.type;
+			t = getArithType(&t1, &t2);
+			addCastInstr(i1, &t1, &t);
+			addCastInstr(i2, &t2, &t);
+
+			i2 = getRVal(&rve);t2 = rve.type;
+			t = getArithType(&t1, &t2);
+			addCastInstr(i1, &t1, &t);
+			addCastInstr(i2, &t2, &t);
+
+			switch (consumedSymbolTk->code) {
+			case LESS:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESS_I);break;
+				case TB_DOUBLE:addInstr(O_LESS_D);break;
+				case TB_CHAR:addInstr(O_LESS_C);break;
+				}
+				break;
+			case LESSEQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESSEQ_I);break;
+				case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
+				case TB_CHAR:addInstr(O_LESSEQ_C);break;
+				}
+				break;
+			case GREATER:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATER_I);break;
+				case TB_DOUBLE:addInstr(O_GREATER_D);break;
+				case TB_CHAR:addInstr(O_GREATER_C);break;
+				}
+				break;
+			case GREATEREQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATEREQ_I);break;
+				case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
+				case TB_CHAR:addInstr(O_GREATEREQ_C);break;
+				}
+				break;
+			}
+			
+
+			rv.type = createType(TB_INT, -1);
+			rv.isCtVal = rv.isLVal = 0;
+
 			if (exprRel1(rv)) {
 				return 1;
 			}
@@ -1297,6 +1352,8 @@ int exprRel1(RetVal &rv) {
 		i1 = getRVal(&rv);
 		t1 = rv.type;
 
+		consumedSymbolTk = consumedTk;
+
 		if (exprAdd(rve)) {
 			/* use (rv, rve); return rv */
 			if (rv.type.nElements > -1 || rve.type.nElements > -1) {
@@ -1304,45 +1361,51 @@ int exprRel1(RetVal &rv) {
 			}
 			if (rv.type.typeBase == TB_STRUCT || rve.type.typeBase == TB_STRUCT) {
 				tkerr(tokens, "A structure cannot be compared.");
-
-				i2 = getRVal(&rve);t2 = rve.type;
-				t = getArithType(&t1, &t2);
-				addCastInstr(i1, &t1, &t);
-				addCastInstr(i2, &t2, &t);
-				switch (consumedTk->code) {
-				case LESS:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESS_I);break;
-					case TB_DOUBLE:addInstr(O_LESS_D);break;
-					case TB_CHAR:addInstr(O_LESS_C);break;
-					}
-					break;
-				case LESSEQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_LESSEQ_I);break;
-					case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
-					case TB_CHAR:addInstr(O_LESSEQ_C);break;
-					}
-					break;
-				case GREATER:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATER_I);break;
-					case TB_DOUBLE:addInstr(O_GREATER_D);break;
-					case TB_CHAR:addInstr(O_GREATER_C);break;
-					}
-					break;
-				case GREATEREQ:
-					switch (t.typeBase) {
-					case TB_INT:addInstr(O_GREATEREQ_I);break;
-					case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
-					case TB_CHAR:addInstr(O_GREATEREQ_C);break;
-					}
-					break;
-				}
-
-				rv.type = createType(TB_INT, -1);
-				rv.isCtVal = rv.isLVal = 0;
 			}
+
+			i2 = getRVal(&rve);t2 = rve.type;
+			t = getArithType(&t1, &t2);
+			addCastInstr(i1, &t1, &t);
+			addCastInstr(i2, &t2, &t);
+			i2 = getRVal(&rve);t2 = rve.type;
+			t = getArithType(&t1, &t2);
+			addCastInstr(i1, &t1, &t);
+			addCastInstr(i2, &t2, &t);
+
+			switch (consumedSymbolTk->code) {
+			case LESS:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESS_I);break;
+				case TB_DOUBLE:addInstr(O_LESS_D);break;
+				case TB_CHAR:addInstr(O_LESS_C);break;
+				}
+				break;
+			case LESSEQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_LESSEQ_I);break;
+				case TB_DOUBLE:addInstr(O_LESSEQ_D);break;
+				case TB_CHAR:addInstr(O_LESSEQ_C);break;
+				}
+				break;
+			case GREATER:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATER_I);break;
+				case TB_DOUBLE:addInstr(O_GREATER_D);break;
+				case TB_CHAR:addInstr(O_GREATER_C);break;
+				}
+				break;
+			case GREATEREQ:
+				switch (t.typeBase) {
+				case TB_INT:addInstr(O_GREATEREQ_I);break;
+				case TB_DOUBLE:addInstr(O_GREATEREQ_D);break;
+				case TB_CHAR:addInstr(O_GREATEREQ_C);break;
+				}
+				break;
+			}
+
+			rv.type = createType(TB_INT, -1);
+			rv.isCtVal = rv.isLVal = 0;
+		
 			if (exprRel1(rv)) {
 				return 1;
 			}
@@ -1683,8 +1746,6 @@ int exprCast(RetVal &rv) {
 			}
 		}
 		else if (expr(rv)) {
-			deleteInstructionsAfter(oldLastInstr);
-
 			while (1) {
 				if (consume(COMMA)) {
 					if (expr(rv)) {
@@ -1967,9 +2028,6 @@ int exprPrimary(RetVal &rv) {
 					}
 				}
 				if (consume(RPAR)) {
-					i = addInstr(s->cls == CLS_FUNC ? O_CALL : O_CALLEXT);
-					i->args[0].addr = s->addr;
-
 					lastFuncToken = idToken;
 
 					if (crtDefArg != s->args.end()) {
@@ -1980,6 +2038,9 @@ int exprPrimary(RetVal &rv) {
 					rv.isCtVal = rv.isLVal = 0;
 				
 					lastArgToken = NULL;
+
+					i = addInstr(s->cls == CLS_FUNC ? O_CALL : O_CALLEXT);
+					i->args[0].addr = s->addr;
 
 					return 1;
 				}
@@ -1994,6 +2055,9 @@ int exprPrimary(RetVal &rv) {
 
 				lastArgToken = NULL;
 
+				i = addInstr(s->cls == CLS_FUNC ? O_CALL : O_CALLEXT);
+				i->args[0].addr = s->addr;
+
 				return 1;
 			}
 			else {
@@ -2001,6 +2065,9 @@ int exprPrimary(RetVal &rv) {
 			}
 		}
 		else {
+			if (s->cls == CLS_FUNC || s->cls == CLS_EXTFUNC)
+				tkerr(tokens, "Missing call for function %s.", idToken->text);
+
 			if (s->depth) {
 				addInstrI(O_PUSHFPADDR, s->offset);
 			}
@@ -2008,8 +2075,6 @@ int exprPrimary(RetVal &rv) {
 				addInstrA(O_PUSHCT_A, s->addr);
 			}
 
-			if (s->cls == CLS_FUNC || s->cls == CLS_EXTFUNC)
-				tkerr(tokens, "Missing call for function %s.", idToken->text);
 			return 1;
 		}
 	}

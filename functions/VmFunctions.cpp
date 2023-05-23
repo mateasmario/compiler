@@ -327,43 +327,43 @@ void run(Instr* IP)
 		case O_GREATER_C:
 			iVal1 = popc();
 			iVal2 = popc();
-			printf("GREATER_C\t(%c==%c -> %ld)\n", iVal2, iVal1, iVal1 > iVal2);
-			pushi(iVal1 > iVal2);
+			printf("GREATER_C\t(%c>%c -> %ld)\n", iVal2, iVal1, iVal2 > iVal1);
+			pushi(iVal2 > iVal1);
 			IP = IP->next;
 			break;
 		case O_GREATER_D:
 			dVal1 = popc();
 			dVal2 = popc();
-			printf("GREATER_D\t(%g==%g -> %ld)\n", dVal2, dVal1, dVal1 > dVal2);
-			pushi(dVal1 > dVal2);
+			printf("GREATER_D\t(%g>%g -> %ld)\n", dVal2, dVal1, dVal2 > dVal1);
+			pushi(dVal2 > dVal1);
 			IP = IP->next;
 			break;
 		case O_GREATER_I:
 			iVal1 = popi();
 			iVal2 = popi();
-			printf("GREATER_I\t(%d==%d -> %ld)\n", iVal2, iVal1, iVal1 > iVal2);
-			pushi(iVal1 > iVal2);
+			printf("GREATER_I\t(%d>%d -> %ld)\n", iVal2, iVal1, iVal2 > iVal1);
+			pushi(iVal2 > iVal1);
 			IP = IP->next;
 			break;
 		case O_GREATEREQ_C:
 			iVal1 = popc();
 			iVal2 = popc();
-			printf("GREATER_C\t(%c==%c -> %ld)\n", iVal2, iVal1, iVal1 >= iVal2);
-			pushi(iVal1 >= iVal2);
+			printf("GREATER_C\t(%c>=%c -> %ld)\n", iVal2, iVal1, iVal2 >= iVal1);
+			pushi(iVal2 >= iVal1);
 			IP = IP->next;
 			break;
 		case O_GREATEREQ_D:
 			dVal1 = popc();
 			dVal2 = popc();
-			printf("GREATER_D\t(%g==%g -> %ld)\n", dVal2, dVal1, dVal1 >= dVal2);
-			pushi(dVal1 >= dVal2);
+			printf("GREATER_D\t(%g>=%g -> %ld)\n", dVal2, dVal1, dVal2 >= dVal1);
+			pushi(dVal2 >= dVal1);
 			IP = IP->next;
 			break;
 		case O_GREATEREQ_I:
 			iVal1 = popi();
 			iVal2 = popi();
-			printf("GREATER_I\t(%d==%d -> %ld)\n", iVal2, iVal1, iVal1 >= iVal2);
-			pushi(iVal1 >= iVal2);
+			printf("GREATER_I\t(%d>=%d -> %ld)\n", iVal2, iVal1, iVal2 >= iVal1);
+			pushi(iVal2 >= iVal1);
 			IP = IP->next;
 			break;
 		case O_HALT:
@@ -434,43 +434,43 @@ void run(Instr* IP)
 		case O_LESS_C:
 			iVal1 = popc();
 			iVal2 = popc();
-			printf("LESS_C\t(%c==%c -> %ld)\n", iVal2, iVal1, iVal1 < iVal2);
-			pushi(iVal1 < iVal2);
+			printf("LESS_C\t(%c<%c -> %ld)\n", iVal2, iVal1, iVal2 < iVal1);
+			pushi(iVal2 < iVal1);
 			IP = IP->next;
 			break;
 		case O_LESS_D:
 			dVal1 = popc();
 			dVal2 = popc();
-			printf("LESS_D\t(%g==%g -> %ld)\n", dVal2, dVal1, dVal1 < dVal2);
-			pushi(dVal1 < dVal2);
+			printf("LESS_D\t(%g<%g -> %ld)\n", dVal2, dVal1, dVal2 < dVal1);
+			pushi(dVal2 < dVal1);
 			IP = IP->next;
 			break;
 		case O_LESS_I:
 			iVal1 = popi();
 			iVal2 = popi();
-			printf("LESS_I\t(%d==%d -> %ld)\n", iVal2, iVal1, iVal1 < iVal2);
-			pushi(iVal1 < iVal2);
+			printf("LESS_I\t(%d<%d -> %ld)\n", iVal2, iVal1, iVal2 < iVal1);
+			pushi(iVal2 < iVal1);
 			IP = IP->next;
 			break;
 		case O_LESSEQ_C:
 			iVal1 = popc();
 			iVal2 = popc();
-			printf("LESSEQ_C\t(%c==%c -> %ld)\n", iVal2, iVal1, iVal1 <= iVal2);
-			pushi(iVal1 <= iVal2);
+			printf("LESSEQ_C\t(%c<=%c -> %ld)\n", iVal2, iVal1, iVal2 <= iVal1);
+			pushi(iVal2 <= iVal1);
 			IP = IP->next;
 			break;
 		case O_LESSEQ_D:
 			dVal1 = popc();
 			dVal2 = popc();
-			printf("LESSEQ_D\t(%g==%g -> %ld)\n", dVal2, dVal1, dVal1 <= dVal2);
-			pushi(dVal1 <= dVal2);
+			printf("LESSEQ_D\t(%g<=%g -> %ld)\n", dVal2, dVal1, dVal2 <= dVal1);
+			pushi(dVal2 <= dVal1);
 			IP = IP->next;
 			break;
 		case O_LESSEQ_I:
 			iVal1 = popi();
 			iVal2 = popi();
-			printf("LESSEQ_I\t(%c==%c -> %ld)\n", iVal2, iVal1, iVal1 <= iVal2);
-			pushi(iVal1 <= iVal2);
+			printf("LESSEQ_I\t(%c<=%c -> %ld)\n", iVal2, iVal1, iVal2 <= iVal1);
+			pushi(iVal2 <= iVal1);
 			IP = IP->next;
 			break;
 		case O_LOAD:
@@ -528,28 +528,28 @@ void run(Instr* IP)
 		case O_NOTEQ_A:
 			aVal1 = (char*)popc();
 			aVal2 = (char*)popc();
-			printf("NOTEQ_A\t(%d==%d -> %ld)\n", aVal1, aVal2, aVal1 != aVal2);
+			printf("NOTEQ_A\t(%d!=%d -> %ld)\n", aVal1, aVal2, aVal1 != aVal2);
 			pushi(aVal1 != aVal2);
 			IP = IP->next;
 			break;
 		case O_NOTEQ_C:
 			iVal1 = popc();
 			iVal2 = popc();
-			printf("NOTEQ_C\t(%c==%c -> %ld)\n", iVal1, iVal2, iVal1 != iVal2);
+			printf("NOTEQ_C\t(%c!=%c -> %ld)\n", iVal1, iVal2, iVal1 != iVal2);
 			pushi(iVal1 != iVal2);
 			IP = IP->next;
 			break;
 		case O_NOTEQ_D:
 			dVal1 = popd();
 			dVal2 = popd();
-			printf("NOTEQ_D\t(%g==%g -> %ld)\n", dVal1, dVal2, dVal1 != dVal2);
+			printf("NOTEQ_D\t(%g!=%g -> %ld)\n", dVal1, dVal2, dVal1 != dVal2);
 			pushi(dVal1 != dVal2);
 			IP = IP->next;
 			break;
 		case O_NOTEQ_I:
 			iVal1 = popi();
 			iVal2 = popi();
-			printf("NOTEQ_I\t(%d==%d -> %ld)\n", iVal1, iVal2, iVal1 != iVal2);
+			printf("NOTEQ_I\t(%d!=%d -> %ld)\n", iVal1, iVal2, iVal1 != iVal2);
 			pushi(iVal1 != iVal2);
 			IP = IP->next;
 			break;
